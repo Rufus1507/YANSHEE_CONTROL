@@ -1,0 +1,12 @@
+# Yanshee Gesture Control - Requirements
+# Cài đặt: pip install -r requirements.txt
+
+# OpenCV - xử lý camera
+opencv-python>=4.5.0
+
+# MediaPipe - nhận dạng cử chỉ/pose
+mediapipe>=0.9.0
+
+# Yanshee Official SDK (openadk)
+# Vì không có trên PyPI, cài trực tiếp từ GitHub:
+# pip install https://github.com/UBTEDU/Yan_ADK/archive/latest.tar.gz
