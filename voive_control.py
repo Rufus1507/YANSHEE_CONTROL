@@ -82,7 +82,7 @@ MOTION_MAP = {
     # ================== THỂ DỤC ==================
     "hít đất": "PushUp",
     "chống đẩy": "PushUp",
-    "tập thể dục": "PushUp",
+    "bài thể dục": "GetUp",
 
     # ================== NHẢY / ÂM NHẠC ==================
     "nhảy": "WakaWaka",
@@ -97,18 +97,18 @@ MOTION_MAP = {
     "ăn mừng": "Victory",
 
     # ================== HỒI PHỤC ==================
-    "đứng dậy": "GetUp",
+
     "ngã sấp đứng dậy": "GetupFront",
     "ngã ngửa đứng dậy": "GetupRear",
 
-    # ================== ĐẦU ==================
-    "nhìn trái": "Hd_Wacth_L",
-    "nhìn phải": "Hd_Wacth_R",
-    "xoay đầu": "Hd_SwivelH",
+    # # ================== ĐẦU ==================
+    # "nhìn trái": "Hd_Wacth_L",
+    # "nhìn phải": "Hd_Wacth_R",
+    # "xoay đầu": "Hd_SwivelH",
 
-    # ================== TAY ==================
-    "giơ tay phải": "H_Rise_R",
-    "giơ tay trái": "H_Rise_L",
+    # # ================== TAY ==================
+    # "giơ tay phải": "H_Rise_R",
+    # "giơ tay trái": "H_Rise_L",
 
     # ================== DI CHUYỂN NGANG ==================
     "qua trái": "OneStepMoveLeft",
@@ -134,7 +134,7 @@ def execute_command(text):
         print("=> Ra lệnh [DỪNG LẠI] (Stop motion) và Trở về tư thế mặc định")
         robot.stop_motion()
         time.sleep(0.5)  # Chờ nửa giây để xử lý xong lệnh ngắt
-        robot.sync_play_motion(name="Reset")
+        # robot.sync_play_motion(name="Reset")
         return
 
     # Chuẩn hóa

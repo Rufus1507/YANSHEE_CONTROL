@@ -116,6 +116,46 @@ class YanAPI:
             logger.error(f"Lỗi khi lấy âm lượng: {e}")
             return {"error": str(e)}
 
+    def set_device_volume(self, volume: int) -> Dict[str, Any]:
+        """Cài đặt mức âm lượng của Yanshee (0-100)."""
+        logger.info(f"Cài đặt âm lượng lên: {volume}")
+        import requests
+        try:
+            volume = max(0, min(100, int(volume)))
+            url = f"{self.host}/devices/volume"
+            payload = {"volume": volume}
+            resp = requests.put(url, json=payload, timeout=5)
+            return resp.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Lỗi API khi cài đặt âm lượng: {e}")
+            return {"error": str(e)}
+
+    def play_music(self, name: str) -> Dict[str, Any]:
+        """Phát nhạc (chỉ âm thanh, không nhảy)."""
+        logger.info(f"Đang phát nhạc: {name}")
+        import requests
+        try:
+            url = f"{self.host}/media/music"
+            payload = {"operation": "start", "name": name}
+            resp = requests.put(url, json=payload, timeout=5)
+            return resp.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Lỗi API khi phát nhạc: {e}")
+            return {"error": str(e)}
+
+    def stop_music(self) -> Dict[str, Any]:
+        """Dừng phát nhạc."""
+        logger.info("Dừng nhạc...")
+        import requests
+        try:
+            url = f"{self.host}/media/music"
+            payload = {"operation": "stop"}
+            resp = requests.put(url, json=payload, timeout=5)
+            return resp.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Lỗi API khi dừng nhạc: {e}")
+            return {"error": str(e)}
+
     def get_device_versions(self) -> Any:
         """Lấy phiên bản hệ thống của thiết bị."""
         try:

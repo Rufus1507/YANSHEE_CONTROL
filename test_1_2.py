@@ -5,7 +5,7 @@ from YanAPI import YanAPI
 # ==========================================
 # CẤU HÌNH IP
 # ==========================================
-ROBOT_IP = "192.168.235.75"  # Dùng IP mạng của bạn
+ROBOT_IP = "10.176.138.75"  # Dùng IP mạng của bạn
 try:
     robot = YanAPI(ip_address=ROBOT_IP)
 except Exception as e:
@@ -14,33 +14,55 @@ except Exception as e:
 
 def main():
     print("="*50)
-    print(" CÔNG CỤ TEST NHANH BÀN PHÍM")
+    print(" BẢNG ĐIỀU KHIỂN ÂM THANH & BÀI HÁT YANSHEE")
     print("="*50)
-    print(" 1 : Hít Đất (PushUp) -> [CẢNH BÁO: HÀNH ĐỘNG RỦI RO CAO / HIGH RISK]")
-    print(" 3 : Giơ Tay Phải (RaiseRightHand) -> [HÀNH ĐỘNG AN TOÀN / LOW RISK]")
-    print(" 2 : Gửi ngắt Dừng lại và Reset (Stop + Reset)")
+    print(" 1 : Phát nhạc WakaWaka (Chỉ audio, không nhảy)")
+    print(" 2 : Tăng âm lượng (+10)")
+    print(" 3 : Giảm âm lượng (-10)")
+    print(" 4 : Tắt tiếng (Mute)")
+    print(" 5 : Dừng (Stop)")
     print(" 0 : Thoát chương trình")
     print("="*50)
 
     while True:
         try:
-            choice = input("\n👉 Hãy chọn lệnh (1, 2, 3 hoặc 0): ").strip()
+            choice = input("\n👉 Hãy chọn lệnh (0-5): ").strip()
             
             if choice == '1':
-                print("=> Đang gửi lệnh: Chống Đẩy (PushUp)...")
-                response = robot.sync_play_motion(name="H_WaveRH")
+                print("=> Đang gửi lệnh: Phát nhạc WakaWaka (chỉ Audio)...")
+                response = robot.play_music(name="WakaWaka")
                 print(f"Phản hồi: {response}")
                 
-            elif choice == '3':
-                print("=> Đang gửi lệnh: Giơ Tay Phải (RaiseRightHand)...")
-                response = robot.sync_play_motion(name="H_Rise_L")
+            elif choice == '2':
+                print("=> Đang gửi lệnh: Tăng âm lượng...")
+                res = robot.get_device_volume()
+                vol = res.get("data", {}).get("volume", 50) if isinstance(res, dict) else 50
+                new_vol = min(100, vol + 10)
+                response = robot.set_device_volume(new_vol)
+                print(f"Volume hiện tại: {vol} -> Tăng lên: {new_vol}")
                 print(f"Phản hồi: {response}")
             
-            elif choice == '2':
-                print("=> Đang gửi lệnh: DỪNG LẠI...")
-                # Gửi lệnh ngắt nếu bạn đã cấu hình bypass trong YanAPI
+            elif choice == '3':
+                print("=> Đang gửi lệnh: Giảm âm lượng...")
+                res = robot.get_device_volume()
+                vol = res.get("data", {}).get("volume", 50) if isinstance(res, dict) else 50
+                new_vol = max(0, vol - 10)
+                response = robot.set_device_volume(new_vol)
+                print(f"Volume hiện tại: {vol} -> Giảm xuống: {new_vol}")
+                print(f"Phản hồi: {response}")
+
+            elif choice == '4':
+                print("=> Đang gửi lệnh: Tắt tiếng (Mute)...")
+                response = robot.set_device_volume(0)
+                print(f"Volume: Mute (0) - Phản hồi: {response}")
+
+            elif choice == '5':
+                print("=> Đang gửi lệnh: DỪNG LẠI (Nhạc & Động tác)...")
+                stop_music_resp = robot.stop_music()
+                print(f"Phản hồi Stop Music: {stop_music_resp}")
+                
                 stop_resp = robot.stop_motion()
-                print(f"Phản hồi Stop: {stop_resp}")
+                print(f"Phản hồi Stop Motion: {stop_resp}")
                 
                 # Chờ phần cứng xử lý
                 time.sleep(0.5)
@@ -54,7 +76,7 @@ def main():
                 break
                 
             else:
-                print("⚠️ Lựa chọn không hợp lệ, vui lòng nhập '1' hoặc '2'.")
+                print("⚠️ Lựa chọn không hợp lệ, vui lòng nhập từ 0 đến 5.")
                 
         except KeyboardInterrupt:
             print("\nĐã ép ngắt Ctr+C. Kết thúc chương trình.")
