@@ -1,6 +1,8 @@
 import speech_recognition as sr
 import time
 import re
+import itertools
+_qc = itertools.count()
 from YanAPI import YanAPI
 
 try:
@@ -10,10 +12,9 @@ except ImportError:
     HAS_RAPIDFUZZ = False
 
 # ==========================================
-# CẤU HÌNH IP
+# Đã dời CẤU HÌNH IP sang main_control.py
 # ==========================================
-ROBOT_IP = "192.168.91.75"  # IP thực tế của Yanshee
-robot = YanAPI(ip_address=ROBOT_IP)
+command_queue = None
 
 # ==========================================
 # TỪ ĐIỂN ÁNH XẠ: Từ khóa (Tiếng Việt) -> Tên Motion
@@ -124,13 +125,73 @@ MOTION_MAP = {
     "GetupRear": {
         "ngã ngửa đứng dậy", "ngã ngửa đứng lên", "ngã ngửa đứng dậy đi", "ngã ngửa đứng dậy lên"
     },
-    "PuchUp": {
-        "hít đất", "hít đất đi", "hít đất lên", "hít đất đi lên"
+    "PushUp": {
+        "hít đất", "hít đất đi", "hít đất lên", "hít đất đi lên","chống đẩy","chống đẩy đi","chống đẩy lên","chống đẩy đi lên"
     },
     "GetUp": {
         "Tập thể dục", "tập thể dục đi", "tập thể dục lên", "tập thể dục đi lên"
     },
 
+    # ================== BÓNG ĐÁ (THỂ THAO) ==================
+    "Football_LKick": {
+        "sút trái", "đá trái", "sút chân trái", "đá chân trái"
+    },
+    "Football_RKick": {
+        "sút phải", "đá phải", "sút chân phải", "đá chân phải"
+    },
+    "Football_LShoot": {
+        "dứt điểm trái", "sút mạnh trái", "sút bóng trái","sút banh trái","sút banh"
+    },
+    "Football_RShoot": {
+        "dứt điểm phải", "sút mạnh phải", "sút bóng phải", "sút bóng", "đá bóng","đá banh","sút banh phải"
+    },
+    "GoalKeeper1": {
+        "bắt bóng", "thủ môn bắt bóng", "bảo vệ khung thành","bắt banh"
+    },
+    "GoalKeeper2": {
+        "bắt bóng trên", "chuẩn bị bắt bóng", "thủ môn","bắt banh trên"
+    },
+    "Football_LKeep": {
+        "bắt bóng trái", "đổ người bên trái", "đổ người trái","bắt banh trái"
+    },
+    "Football_RKeep": {
+        "bắt bóng phải", "đổ người bên phải", "đổ người phải","bắt banh phải"
+    },
+    "LeftTackle": {
+        "xoạc bóng trái", "cướp bóng trái","xoạc banh trái"
+    },
+    "RightTackle": {
+        "xoạc bóng phải", "cướp bóng phải", "xoạc bóng","xoạc banh phải"
+    },
+    "Left slide tackle": {
+        "chồi bóng trái", "trượt bóng trái","xoạc banh trái"
+    },
+
+    # ================== CHIẾN ĐẤU (FIGHT) ==================
+    "LeftSidePunch": {
+        "đấm ngang trái", "đánh ngang trái", "đấm tay trái", "đánh tay trái"
+    },
+    "RightSidePunch": {
+        "đấm ngang phải", "đánh ngang phải", "đấm tay phải", "đánh tay phải"
+    },
+    "Fight_LHit": {
+        "đấm thẳng trái", "đánh thẳng trái", "tấn công trái"
+    },
+    "Fight_RHit": {
+        "đấm thẳng phải", "đánh thẳng phải", "tấn công phải", "đấm thẳng", "tấn công"
+    },
+    "Fight_LSideHit": {
+        "đòn sườn trái", "đánh sườn trái", "móc trái"
+    },
+    "Fight_RSideHit": {
+        "đòn sườn phải", "đánh sườn phải", "móc phải", "đòn sườn"
+    },
+    "LeftHitForward": {
+        "gạt đòn trái", "đỡ đòn trái", "chặn đòn trái"
+    },
+    "RightHitForward": {
+        "gạt đòn phải", "đỡ đòn phải", "chặn đòn", "gạt đòn"
+    },
 
     "PlayMusic": {
         "phát nhạc", "bật nhạc", "mở nhạc", "play music"
@@ -149,7 +210,7 @@ MOTION_MAP = {
     },
 
     "Mute": {
-        "tắt âm thanh", "im lặng", "mute"
+        "tắt âm thanh", "im lặng", "mute","tắt tiếng","tắt tiếng đi","tắt tiếng lên","tắt tiếng đi lên"
     },
 
     "Unmute": {
@@ -162,29 +223,79 @@ def normalize_text(text):
     text = re.sub(r'[^\w\s]', '', text)
     # Bỏ stop-words
     stopwords = ["robot", "ơi", "làm ơn", "hãy", "cho tôi", "nhé", "nha", "đi", "thực hiện"]
-    words = text.split()
-    words = [w for w in words if w not in stopwords]
-    return " ".join(words)
+    for word in stopwords:
+        text = text.replace(word, " ")
+    return " ".join(text.split())
 
 def execute_command(text):
     """Xử lý văn bản sau khi chuyển từ giọng nói và phát lệnh tương ứng"""
     text = text.lower()
     print(f"\n[You said]: {text}")
     
-    # 0. Lệnh Dừng Nhạc ưu tiên cao nhất
-    if any(k in text for k in ["dừng nhạc", "tắt nhạc",  "dừng phát nhạc","dừng chơi nhạc", "ngừng nhạc"]):
+    # Khóa Cam ngay từ lúc chuẩn bị phát lệnh
+    if command_queue:
+        command_queue.voice_is_busy = True
+    
+    # 0. Lệnh Thoát Chương Trình (Ưu tiên Tuyệt đối #0)
+    if any(k in text for k in ["tắt chương trình", "kết thúc chương trình", "thoát chương trình", "đóng chương trình"]):
+        print("=> Ra lệnh [TẮT HỆ THỐNG] (Exit program)")
+        if command_queue:
+            command_queue.put((0, next(_qc), "voice", "exit", {}))
+        return
+
+    # 1. Lệnh Dừng Nhạc
+    if any(k in text for k in ["dừng nhạc", "tắt nhạc",  "dừng phát nhạc","dừng chơi nhạc", "ngừng nhạc",'ngừng phát nhạc',"ngừng chơi nhạc"]):
         print("=> Ra lệnh [DỪNG NHẠC] (Stop music)")
-        robot.stop_music()
+        if command_queue:
+            command_queue.put((1, next(_qc), "voice", "stop_music", {}))
         text = re.sub(r'(dừng|tắt|ngừng)\s*(chơi\s*)?nhạc', '', text).strip()
         if not text:
             return
 
-    # 1. Ưu tiên kiểm tra lệnh DỪNG (Stop)
+    # 1.5. Lệnh âm lượng theo phần trăm cụ thể
+    # Hỗ trợ: "tăng âm lượng 30 phần trăm", "giảm âm lượng 20%", "đặt âm lượng 70 phần trăm"
+    vol_text_num = {"một": "1", "hai": "2", "ba": "3", "bốn": "4", "năm": "5",
+                    "sáu": "6", "bảy": "7", "tám": "8", "chín": "9", "mười": "10",
+                    "hai mươi": "20", "ba mươi": "30", "bốn mươi": "40",
+                    "năm mươi": "50", "sáu mươi": "60", "bảy mươi": "70",
+                    "tám mươi": "80", "chín mươi": "90", "một trăm": "100"}
+    vol_check = text
+    for word, digit in vol_text_num.items():
+        vol_check = re.sub(r'(?<!\w)' + word + r'(?!\w)', digit, vol_check)
+
+    # Tăng âm lượng X%
+    m = re.search(r'tăng\s+âm\s+lượng\s+(\d+)\s*(%|phần\s*trăm)', vol_check)
+    if m:
+        pct = int(m.group(1))
+        print(f"=> Ra lệnh [TĂNG ÂM LƯỢNG {pct}%]")
+        if command_queue:
+            command_queue.put((1, next(_qc), "voice", "volume_up_by", {"pct": pct}))
+        return
+
+    # Giảm âm lượng X%
+    m = re.search(r'giảm\s+âm\s+lượng\s+(\d+)\s*(%|phần\s*trăm)', vol_check)
+    if m:
+        pct = int(m.group(1))
+        print(f"=> Ra lệnh [GIẢM ÂM LƯỢNG {pct}%]")
+        if command_queue:
+            command_queue.put((1, next(_qc), "voice", "volume_down_by", {"pct": pct}))
+        return
+
+    # Đặt/chỉnh âm lượng về X%
+    m = re.search(r'(?:đặt|chỉnh|set)\s+âm\s+lượng\s+(?:về\s*)?(\d+)\s*(%|phần\s*trăm)', vol_check)
+    if m:
+        pct = min(100, max(0, int(m.group(1))))
+        print(f"=> Ra lệnh [ĐẶT ÂM LƯỢNG = {pct}]")
+        if command_queue:
+            command_queue.put((1, next(_qc), "voice", "set_volume", {"vol": pct}))
+        return
+
+    # 2. Ưu tiên kiểm tra lệnh DỪNG (Stop)
     if "dừng" in text or "thôi" in text or "ngừng" in text:
         print("=> Ra lệnh [DỪNG LẠI] (Stop motion) và Trở về tư thế mặc định")
-        robot.stop_motion()
-        time.sleep(0.5)  # Chờ nửa giây để xử lý xong lệnh ngắt
-        robot.sync_play_motion(name="Reset")
+        if command_queue:
+            command_queue.put((1, next(_qc), "voice", "stop_motion", {}))
+            command_queue.put((1, next(_qc), "voice", "sync_play_motion", {"name": "Reset", "repeat": 1}))
         return
 
     # Chuẩn hóa
@@ -203,27 +314,23 @@ def execute_command(text):
                 motion_name = step_map[motion_name]
                 print(f"    => [Tự động chuyển] Lệnh liên tục -> Lệnh đếm bước: [{motion_name}]")
 
+        if not command_queue: return
+
         if motion_name == "VolumeUp":
-            vol_resp = robot.get_device_volume()
-            curr_vol = vol_resp.get("data", {}).get("volume", 50) if isinstance(vol_resp, dict) else 50
-            new_vol = min(100, curr_vol + 15)
-            robot.set_device_volume(new_vol)
-            print(f"    => Đã tăng âm lượng lên {new_vol}")
+            command_queue.put((1, next(_qc), "voice", "volume_up", {}))
+            print("    => Đã gửi lệnh tăng âm lượng")
         elif motion_name == "VolumeDown":
-            vol_resp = robot.get_device_volume()
-            curr_vol = vol_resp.get("data", {}).get("volume", 50) if isinstance(vol_resp, dict) else 50
-            new_vol = max(0, curr_vol - 15)
-            robot.set_device_volume(new_vol)
-            print(f"    => Đã giảm âm lượng xuống {new_vol}")
+            command_queue.put((1, next(_qc), "voice", "volume_down", {}))
+            print("    => Đã gửi lệnh giảm âm lượng")
         elif motion_name == "Mute":
-            robot.set_device_volume(0)
-            print("    => Đã tắt âm thanh (Mute)")
+            command_queue.put((1, next(_qc), "voice", "set_volume", {"vol": 0}))
+            print("    => Đã gửi lệnh tắt âm thanh (Mute)")
         elif motion_name == "Unmute":
-            robot.set_device_volume(50)
-            print("    => Đã bật âm thanh")
+            command_queue.put((1, next(_qc), "voice", "set_volume", {"vol": 50}))
+            print("    => Đã gửi lệnh bật âm thanh")
         elif motion_name == "StopMusic":
-            robot.stop_music()
-            print("    => Đã dừng phát nhạc")
+            command_queue.put((1, next(_qc), "voice", "stop_music", {}))
+            print("    => Đã gửi lệnh dừng phát nhạc")
         elif motion_name in ["PlayMusic", "WakaWaka", "MerryChristmas", "HappyBirthday", "WeAreTakingOff"]:
             is_music_intent = (motion_name == "PlayMusic") or any(w in chunk_text for w in ["nhạc", "bật", "phát", "chơi", "hát"])
             if is_music_intent:
@@ -238,19 +345,19 @@ def execute_command(text):
                     elif "cất cánh" in chunk_text or "taking off" in chunk_text:
                         target_track = "WeAreTakingOff"
                 
-                robot.play_music(target_track)
-                print(f"    => Đang phát nhạc bài {target_track}")
+                command_queue.put((1, next(_qc), "voice", "play_music", {"track": target_track}))
+                print(f"    => Đang gửi lệnh phát nhạc bài {target_track}")
             else:
-                robot.sync_play_motion(name=motion_name, repeat=rep)
+                command_queue.put((1, next(_qc), "voice", "sync_play_motion", {"name": motion_name, "repeat": rep}))
         elif motion_name in ["RaiseRightHand", "H_WaveRH"]:
             print("    => Đang thực hiện chuỗi động tác Chào/Tạm biệt (3 lần)")
             for i in range(3):
-                robot.sync_play_motion(name="RaiseRightHand")
-                time.sleep(0.5)
-                robot.sync_play_motion(name="Reset")
-                time.sleep(0.5)
+                command_queue.put((1, next(_qc), "voice", "sync_play_motion", {"name": "RaiseRightHand", "repeat": 1}))
+                command_queue.put((1, next(_qc), "voice", "sleep", {"time": 0.5}))  # Chờ 1 giây để tay giơ lên hẳn
+                command_queue.put((1, next(_qc), "voice", "sync_play_motion", {"name": "Reset", "repeat": 1}))
+                command_queue.put((1, next(_qc), "voice", "sleep", {"time": 0.5}))  # Chờ 1 giây để tay thả xuống hẳn
         else:
-            robot.sync_play_motion(name=motion_name, repeat=rep)
+            command_queue.put((1, next(_qc), "voice", "sync_play_motion", {"name": motion_name, "repeat": rep}))
 
     # Tách đa lệnh
     # Tách bằng: "rồi", "và", "sau đó", "tiếp tục"
@@ -318,8 +425,10 @@ def execute_command(text):
             time.sleep(1)
 
 
-def start_voice_control():
+def start_voice_control(cmd_queue=None):
     """Khởi động hệ thống nhận diện giọng nói liên tục"""
+    global command_queue
+    command_queue = cmd_queue
     
     print("\n[Hệ thống] Đang tải mô hình AI Whisper... Vui lòng đợi.")
     import torch
