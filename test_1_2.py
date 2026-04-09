@@ -5,7 +5,7 @@ from YanAPI import YanAPI
 # ==========================================
 # CẤU HÌNH IP
 # ==========================================
-ROBOT_IP = "10.176.138.75"  # Dùng IP mạng của bạn
+ROBOT_IP = "192.168.91.75"  # Dùng IP mạng của bạn
 try:
     robot = YanAPI(ip_address=ROBOT_IP)
 except Exception as e:
@@ -30,7 +30,11 @@ def main():
             
             if choice == '1':
                 print("=> Đang gửi lệnh: Phát nhạc WakaWaka (chỉ Audio)...")
-                response = robot.play_music(name="WakaWaka")
+                for i in   range(3):
+                    response = robot.sync_play_motion(name="RaiseRightHand")
+                    time.sleep(0.5)
+                    response = robot.sync_play_motion(name="Reset")
+                    time.sleep(0.5)
                 print(f"Phản hồi: {response}")
                 
             elif choice == '2':
