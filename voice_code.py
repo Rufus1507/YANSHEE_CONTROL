@@ -174,23 +174,11 @@ MOTION_MAP = {
     "RightSidePunch": {
         "đấm ngang phải", "đánh ngang phải", "đấm tay phải", "đánh tay phải"
     },
-    "Fight_LHit": {
+    "LeftHitForward": {
         "đấm thẳng trái", "đánh thẳng trái", "tấn công trái"
     },
-    "Fight_RHit": {
-        "đấm thẳng phải", "đánh thẳng phải", "tấn công phải", "đấm thẳng", "tấn công"
-    },
-    "Fight_LSideHit": {
-        "đòn sườn trái", "đánh sườn trái", "móc trái"
-    },
-    "Fight_RSideHit": {
-        "đòn sườn phải", "đánh sườn phải", "móc phải", "đòn sườn"
-    },
-    "LeftHitForward": {
-        "gạt đòn trái", "đỡ đòn trái", "chặn đòn trái"
-    },
     "RightHitForward": {
-        "gạt đòn phải", "đỡ đòn phải", "chặn đòn", "gạt đòn"
+        "đấm thẳng phải", "đánh thẳng phải", "tấn công phải", "đấm thẳng", "tấn công"
     },
 
     "PlayMusic": {
@@ -232,12 +220,8 @@ def execute_command(text):
     text = text.lower()
     print(f"\n[You said]: {text}")
     
-    # Khóa Cam ngay từ lúc chuẩn bị phát lệnh
-    if command_queue:
-        command_queue.voice_is_busy = True
-    
     # 0. Lệnh Thoát Chương Trình (Ưu tiên Tuyệt đối #0)
-    if any(k in text for k in ["tắt chương trình", "kết thúc chương trình", "thoát chương trình", "đóng chương trình"]):
+    if any(k in text for k in ["tắt chương trình", "kết thúc chương trình", "thoát chương trình", "đóng chương trình","dừng chương trình"]):
         print("=> Ra lệnh [TẮT HỆ THỐNG] (Exit program)")
         if command_queue:
             command_queue.put((0, next(_qc), "voice", "exit", {}))

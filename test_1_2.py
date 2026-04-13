@@ -1,22 +1,59 @@
 import time
 import sys
+import threading
 from YanAPI import YanAPI
 
 # ==========================================
-# CẤU HÌNH IP
+# CẤU HÌNH IP - 2 robot
 # ==========================================
-ROBOT_IP = "192.168.91.75"  # Dùng IP mạng của bạn
-try:
-    robot = YanAPI(ip_address=ROBOT_IP)
-except Exception as e:
-    print(f"Lỗi kết nối API: {e}")
+ROBOT_IPS = ["192.168.91.21", "192.168.91.75"]
+
+robots = []  # danh sách [(ip, YanAPI), ...] đã kết nối thành công
+
+print("\n[Init] Đang kết nối các robot...")
+for ip in ROBOT_IPS:
+    try:
+        r = YanAPI(ip_address=ip)
+        robots.append((ip, r))
+        print(f"[Init] *** Kết nối thành công: {ip} ***")
+    except Exception as e:
+        print(f"[Init] [SKIP] Không thể kết nối {ip}: {e}")
+
+if not robots:
+    print("[Init] Không kết nối được robot nào! Thoát.")
     sys.exit(1)
+
+print(f"[Init] Đã kết nối: {len(robots)}/{len(ROBOT_IPS)} robot\n")
+
+def send_all(fn_name: str, *args, **kwargs):
+    """
+    Gửi lệnh đến TẤT CẢ robot đang kết nối song song.
+    fn_name: tên phương thức của YanAPI (ví dụ: 'sync_play_motion')
+    Trả về dict {ip: response}
+    """
+    results = {}
+    lock = threading.Lock()
+
+    def _call(ip, r):
+        try:
+            resp = getattr(r, fn_name)(*args, **kwargs)
+            with lock:
+                results[ip] = resp
+        except Exception as e:
+            with lock:
+                results[ip] = f"Lỗi: {e}"
+
+    threads = [threading.Thread(target=_call, args=(ip, r), daemon=True) for ip, r in robots]
+    for t in threads: t.start()
+    for t in threads: t.join(timeout=15)
+    return results
 
 def main():
     print("="*50)
     print(" BẢNG ĐIỀU KHIỂN ÂM THANH & BÀI HÁT YANSHEE")
+    print(f" Robot đang kết nối: {[ip for ip, _ in robots]}")
     print("="*50)
-    print(" 1 : Phát nhạc WakaWaka (Chỉ audio, không nhảy)")
+    print(" 1 : Giơ tay phải (3 lần)")
     print(" 2 : Tăng âm lượng (+10)")
     print(" 3 : Giảm âm lượng (-10)")
     print(" 4 : Tắt tiếng (Mute)")
@@ -29,51 +66,44 @@ def main():
             choice = input("\n👉 Hãy chọn lệnh (0-5): ").strip()
             
             if choice == '1':
-                print("=> Đang gửi lệnh: Phát nhạc WakaWaka (chỉ Audio)...")
-                for i in   range(3):
-                    response = robot.sync_play_motion(name="RaiseRightHand")
+                print("=> Đang gửi lệnh: Giơ tay phải (3 lần) cho cả 2 robot...")
+                for i in range(3):
+                    resps = send_all("sync_play_motion", name="RaiseRightHand")
+                    for ip, resp in resps.items():
+                        print(f"  [{ip}] Phản hồi RaiseRightHand: {resp}")
                     time.sleep(0.5)
-                    response = robot.sync_play_motion(name="Reset")
+                    resps = send_all("sync_play_motion", name="Reset")
+                    for ip, resp in resps.items():
+                        print(f"  [{ip}] Phản hồi Reset: {resp}")
                     time.sleep(0.5)
-                print(f"Phản hồi: {response}")
                 
             elif choice == '2':
-                print("=> Đang gửi lệnh: Tăng âm lượng...")
-                res = robot.get_device_volume()
-                vol = res.get("data", {}).get("volume", 50) if isinstance(res, dict) else 50
-                new_vol = min(100, vol + 10)
-                response = robot.set_device_volume(new_vol)
-                print(f"Volume hiện tại: {vol} -> Tăng lên: {new_vol}")
-                print(f"Phản hồi: {response}")
+                resps = send_all("sync_play_motion", name="Fight_RSideHi")
             
             elif choice == '3':
-                print("=> Đang gửi lệnh: Giảm âm lượng...")
-                res = robot.get_device_volume()
-                vol = res.get("data", {}).get("volume", 50) if isinstance(res, dict) else 50
-                new_vol = max(0, vol - 10)
-                response = robot.set_device_volume(new_vol)
-                print(f"Volume hiện tại: {vol} -> Giảm xuống: {new_vol}")
-                print(f"Phản hồi: {response}")
+                resps = send_all("sync_play_motion", name="Fight_LSideHi")
 
             elif choice == '4':
                 print("=> Đang gửi lệnh: Tắt tiếng (Mute)...")
-                response = robot.set_device_volume(0)
-                print(f"Volume: Mute (0) - Phản hồi: {response}")
+                resps = send_all("set_device_volume", 0)
+                for ip, resp in resps.items():
+                    print(f"  [{ip}] Mute | Phản hồi: {resp}")
 
             elif choice == '5':
-                print("=> Đang gửi lệnh: DỪNG LẠI (Nhạc & Động tác)...")
-                stop_music_resp = robot.stop_music()
-                print(f"Phản hồi Stop Music: {stop_music_resp}")
+                print("=> Đang gửi lệnh: DỮNG LẠI cho cả 2 robot...")
+                resps = send_all("stop_music")
+                for ip, resp in resps.items():
+                    print(f"  [{ip}] Stop Music: {resp}")
                 
-                stop_resp = robot.stop_motion()
-                print(f"Phản hồi Stop Motion: {stop_resp}")
+                resps = send_all("stop_motion")
+                for ip, resp in resps.items():
+                    print(f"  [{ip}] Stop Motion: {resp}")
                 
-                # Chờ phần cứng xử lý
                 time.sleep(0.5)
-                
                 print("=> Gửi lệnh: Reset tư thế...")
-                reset_resp = robot.sync_play_motion(name="Reset")
-                print(f"Phản hồi Reset: {reset_resp}")
+                resps = send_all("sync_play_motion", name="Reset")
+                for ip, resp in resps.items():
+                    print(f"  [{ip}] Reset: {resp}")
                 
             elif choice == '0':
                 print("\nKết thúc test.")

@@ -49,11 +49,12 @@ MOTION_MAP = {
     # ================== DI CHUYỂN ==================
     "Forward": {
         "tiến", "tiến lên", "đi tới", "đi lên",
-        "forward", "go forward"
+        "forward", "go forward",
+        "tới", "lên",  # Thêm từ khóa ngắn hỗ trợ "tới 3 bước"
     },
 
     "Backward": {
-        "lùi", "đi lùi", "lùi lại",
+        "lùi", "đi lùi", "lùi lại","bước lui"
         "back", "go back"
     },
 
@@ -105,11 +106,11 @@ MOTION_MAP = {
 
     # ================== NĂNG LƯỢNG ==================
     "EnterEnergySavingSquat": {
-        "ngồi", "ngồi xuống", "ngồi nghỉ"
+        "nghỉ","nghỉ ngơi","nghỉ ngơi đi","tiết kiệm năng lượng","vào chế độ tiết kiệm năng lượng"
     },
 
     "ExitEnergySavingReset": {
-        "đứng lên", "đứng dậy"
+        "dừng nghỉ","dừng nghỉ đi","dừng nghỉ ngơi","thoát tiết kiệm năng lượng","thoát chế độ tiết kiệm năng lượng"
     },
 
     # ================== ÂM THANH ==================
@@ -130,10 +131,10 @@ MOTION_MAP = {
         "xin chào", "ăn mừng", "chào","hi","hello","hey","hey robot"
     },
     "GetupFront": {
-        "ngã sấp đứng dậy", "ngã sấp đứng lên", "ngã sấp đứng dậy đi", "ngã sấp đứng dậy lên"
+        "ngã sấp đứng dậy", "ngã sấp đứng lên", "ngã sấp đứng dậy đi", "ngã sấp đứng dậy lên","nằm sấp đứng dậy","nằm sấp đứng lên","nằm sấp đứng dậy đi","nằm sấp đứng dậy lên","lật lại","lật người"
     },
     "GetupRear": {
-        "ngã ngửa đứng dậy", "ngã ngửa đứng lên", "ngã ngửa đứng dậy đi", "ngã ngửa đứng dậy lên"
+        "ngã ngửa đứng dậy", "ngã ngửa đứng lên", "ngã ngửa đứng dậy đi", "ngã ngửa đứng dậy lên","nằm ngửa đứng dậy","nằm ngửa đứng lên","nằm ngửa đứng dậy đi","nằm ngửa đứng dậy lên","ngồi dậy","đứng dậy","đứng lên"
     },
     "PushUp": {
         "hít đất", "hít đất đi", "hít đất lên", "hít đất đi lên","chống đẩy","chống đẩy đi","chống đẩy lên","chống đẩy đi lên"
@@ -218,7 +219,8 @@ MOTION_MAP = {
 def normalize_text(text):
     """Lọc rác và chuẩn hóa văn bản"""
     text = re.sub(r'[^\w\s]', '', text)
-    stopwords = ["robot", "ơi", "làm ơn", "hãy", "cho tôi", "nhé", "nha", "đi", "thực hiện"]
+    # Thêm 'nói', 'bạn' vào stopwords để lọc prefix rác như "nói 3 bước"
+    stopwords = ["robot", "ơi", "làm ơn", "hãy", "cho tôi", "nhé", "nha", "đi", "thực hiện", "nói", "bạn"]
     for word in stopwords:
         text = text.replace(word, " ")
     return " ".join(text.split())

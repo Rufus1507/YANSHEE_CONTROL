@@ -48,7 +48,7 @@ palm_pause_timestamp = 0
 # 2. Đặc quyền & Chống spam lệnh Pose
 last_action = None
 last_send_time = 0
-COOLDOWN_SEC = 5.0
+COOLDOWN_SEC = 3.0
 
 # 3. Ổn định cử chỉ Pose
 STABILITY_FRAMES = 8
@@ -82,9 +82,9 @@ def _send_to_robot(action: str):
         elif action == "victory":
             command_queue.put((2, next(_qc), "cam", "sync_play_motion", {"name": "Victory"}))
         elif action == "punch_forward_left":
-            command_queue.put((2, next(_qc), "cam", "sync_play_motion", {"name": "Fight_LHit"}))
+            command_queue.put((2, next(_qc), "cam", "sync_play_motion", {"name": "LeftHitForward"}))
         elif action == "punch_forward_right":
-            command_queue.put((2, next(_qc), "cam", "sync_play_motion", {"name": "Fight_RHit"}))
+            command_queue.put((2, next(_qc), "cam", "sync_play_motion", {"name": "RightHitForward"}))
         elif action == "punch_sideways_left":
             command_queue.put((2, next(_qc), "cam", "sync_play_motion", {"name": "LeftSidePunch"}))
         elif action == "punch_sideways_right":
