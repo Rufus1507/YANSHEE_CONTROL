@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yanshee Face ID</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=3">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <h1 class="logo-title">YANSHEE FACE ID</h1>
+        </div>
+        <div class="header-right">
+            <div class="status-item">
+                <span class="status-dot" id="light-cam"></span>
+                <span class="status-text">Camera: <span id="cam-text">Offline</span></span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot on" id="light-api"></span>
+                <span class="status-text">API: Live</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot" id="light-robot"></span>
+                <span class="status-text">Robot: <span id="robot-text">Offline</span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="layout-container">
+
+        <!-- Cột Trái (Camera Zone 70%) -->
+        <div class="panel camera-zone">
+            <div class="video-container">
+                <img id="video-feed" src="/video_feed" alt="Live Feed" />
+                <canvas id="vision-overlay"></canvas>
+            </div>
+            <div class="fps-overlay">FPS: <span id="fps-val">--</span> (Live)</div>
+        </div>
+
+        <!-- Cột Phải (Info Zone 30%) -->
+        <div class="info-zone">
+
+            <!-- Module 1: Người dùng hiện tại -->
+            <div class="panel module">
+                <h2 class="module-title">NGƯỜI DÙNG HIỆN TẠI</h2>
+                <div class="user-profile">
+                    <div class="avatar-box">
+                        <div class="avatar-icon" id="avatar-icon">👤</div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="user-name">--</div>
+                        <div class="user-role" id="user-role">--</div>
+                    </div>
+                </div>
+                <div class="confidence-container">
+                    <div class="conf-label">Độ tin cậy: <span id="user-conf">0%</span></div>
+                    <div class="conf-bar-bg">
+                        <div class="conf-bar-fill" id="conf-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 2: Liveness -->
+            <div class="panel module">
+                <div class="liveness-header">
+                    <h2 class="module-title">KIỂM TRA ĐỘ SỐNG</h2>
+                    <span id="liveness-timer" class="liveness-timer"></span>
+                </div>
+                <div class="liveness-steps" id="liveness-steps">
+                    <div class="liveness-placeholder">Đang chờ hệ thống...</div>
+                </div>
+            </div>
+
+            <!-- Module 3: Nhật ký sự kiện -->
+            <div class="panel module module-log">
+                <h2 class="module-title">NHẬT KÝ SỰ KIỆN</h2>
+                <div class="log-stream" id="log-stream">
+                    <!-- Logs injected here -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=3"></script>
+</body>
+
+</html>
