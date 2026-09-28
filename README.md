@@ -23,7 +23,7 @@ Robot Yanshee sở hữu hệ thống phần cứng mạnh mẽ cùng kho hành 
 
 ---
 
-## PHẦN 2: HỆ THỐNG NHẬN DIỆN KHUÔN MẶT THÔNG MINH (Nhánh Van)
+## PHẦN 2: HỆ THỐNG NHẬN DIỆN KHUÔN MẶT THÔNG MINH
 Nâng cấp hệ thống thị giác máy tính, biến camera gốc của Yanshee thành một trạm phát luồng video (MJPEG Streamer) và xử lý AI độc lập trên máy tính.
 
 **Các chức năng nổi bật:**
@@ -36,7 +36,7 @@ Nâng cấp hệ thống thị giác máy tính, biến camera gốc của Yansh
 
 ---
 
-## PHẦN 3: HỆ THỐNG TRỢ LÝ ẢO TIẾNG VIỆT & BỘ NHỚ ĐỘNG (Nhánh Linh)
+## PHẦN 3: HỆ THỐNG TRỢ LÝ ẢO TIẾNG VIỆT & BỘ NHỚ ĐỘNG
 Đập bỏ hoàn toàn hệ thống giao tiếp cứng nhắc cũ, tích hợp Trí tuệ nhân tạo sinh tạo (Generative AI) và kiến trúc quản lý bộ nhớ linh hoạt.
 
 **Các chức năng nổi bật:**
