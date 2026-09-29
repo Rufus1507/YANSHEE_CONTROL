@@ -1,0 +1,41 @@
+# ==============================================================================
+# HƯỚNG DẪN CÀI ĐẶT / INSTALLATION COMMANDS (COPY & PASTE VÀO TERMINAL):
+#
+# 1. Kích hoạt môi trường ảo (Nếu dùng .venv trên Windows):
+#    .\.venv\Scripts\activate
+#
+# 2. Cài đặt toàn bộ thư viện:
+#    pip install -r requirements.txt
+#
+# LƯU Ý WINDOWS: Nếu lệnh trên báo lỗi C++ Build Tools khi cài pyaudio, hãy chạy:
+#    pip install pipwin
+#    pipwin install pyaudio
+# ==============================================================================
+# REQUIREMENTS FOR YANSHEE CONTROL SYSTEM (VOICE & CAMERA AI)
+# ==============================================================================
+
+# --- Core Dependencies (Camera & Computer Vision) ---
+opencv-python==4.10.0.84
+mediapipe==0.10.18
+numpy==1.26.4
+pillow==11.1.0
+
+# --- Voice & NLP Dependencies (Voice Control) ---
+SpeechRecognition==3.10.0
+pyaudio==0.2.14
+rapidfuzz==3.11.0
+
+# --- HTTP / API Connection to Yanshee Robot ---
+requests==2.32.3
+urllib3==2.3.0
+
+# --- Yanshee OpenADK SDK Dependencies ---
+connexion==1.1.15
+python-dateutil==2.6.0
+six>=1.10
+attrs>=25.1.0
+
+# --- Optional AI Dependencies (For whisper_server.py / Whisper models) ---
+# Note: Uncomment these if you plan to run local Whisper speech-to-text.
+# torch
+# openai-whisper

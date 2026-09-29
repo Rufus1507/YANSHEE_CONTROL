@@ -10,8 +10,11 @@ THIẾT KẾ HIỆU NĂNG:
 import os
 import json
 import asyncio
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+# pyrefly: ignore [missing-import]
 from fastapi.staticfiles import StaticFiles
+# pyrefly: ignore [missing-import]
 from fastapi.responses import HTMLResponse, StreamingResponse
 from events.event_bus import EventBus
 from camera.camera_manager import CameraManager
@@ -27,7 +30,16 @@ _FORWARD_EVENTS = [
     "ROBOT_SPEAKING_STARTED", "ROBOT_SPEAKING_FINISHED", "ROBOT_GREETING_STARTED", 
     "ROBOT_GREETING_FINISHED", "ROBOT_RESET_WAITING", "ROBOT_RESET_STARTED", "ROBOT_RESET_FINISHED", "ROBOT_READY",
     "CAMERA_STATUS", "CAMERA_CONNECTED", "CAMERA_RECONNECTING", "CAMERA_DISCONNECTED", "CAMERA_ERROR",
-    "SYSTEM_ERROR", "FRAME_READY", "PERFORMANCE_METRICS", "PIPELINE_METRICS"
+    "SYSTEM_ERROR", "SYSTEM_METRICS", "FRAME_READY", "PERFORMANCE_METRICS", "PIPELINE_METRICS",
+    # Feature 5: Voice Control
+    "VOICE_STATUS", "VOICE_RECOGNIZED", "VOICE_COMMAND", "VOICE_UNKNOWN_WORD",
+    "VOICE_EXECUTING", "VOICE_COMMAND_SUCCESS", "VOICE_COMMAND_FAILED",
+    # Feature 6: Smart Memory
+    "MEMORY_UPDATED",
+    # Feature 7: TTS tiếng Việt
+    "TTS_STARTED", "TTS_FINISHED",
+    # Action Queue
+    "ACTION_QUEUE_UPDATE", "ACTION_EXECUTING", "ACTION_COMPLETED",
 ]
 
 
@@ -152,7 +164,7 @@ def create_app(bus: EventBus, camera: CameraManager) -> FastAPI:
                 except asyncio.TimeoutError:
                     # Ping để giữ kết nối
                     await ws.send_text(json.dumps({"type": "ping"}))
-        except (WebSocketDisconnect, Exception):
+        except (WebSocketDisconnect, Exception, asyncio.CancelledError):
             pass
         finally:
             ws_manager.remove(q)
@@ -163,8 +175,9 @@ def create_app(bus: EventBus, camera: CameraManager) -> FastAPI:
     return app
 
 
-async def start_dashboard_server(bus: EventBus, camera: CameraManager, host: str, port: int):
+async def start_dashboard_server(bus: EventBus, camera: CameraManager, host: str, port: int, shutdown_event: asyncio.Event = None):
     bus.dashboard_connected = False
+    # pyrefly: ignore [missing-import]
     import uvicorn
     import socket
     app = create_app(bus, camera)
@@ -173,4 +186,15 @@ async def start_dashboard_server(bus: EventBus, camera: CameraManager, host: str
     # Patch socket để SO_REUSEADDR — cho phép restart ngay mà không cần chờ TIME_WAIT
     server = uvicorn.Server(config)
     server.config.socket_opts = [(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)]
-    await server.serve()
+    
+    if shutdown_event:
+        async def watch_shutdown():
+            await shutdown_event.wait()
+            server.should_exit = True
+        asyncio.create_task(watch_shutdown())
+
+    try:
+        await server.serve()
+    except asyncio.CancelledError:
+        pass
+

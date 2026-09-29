@@ -9,9 +9,12 @@ Upgrades in v2 (24-sample Auto-Sampling):
   - Shows bucket progress on-screen (e.g. FRONT_NEAR: 3/4).
 """
 import uuid
+# pyrefly: ignore [missing-import]
 import cv2
+# pyrefly: ignore [missing-import]
 import numpy as np
 import time
+# pyrefly: ignore [missing-import]
 from PIL import Image, ImageDraw, ImageFont
 import sys
 import os
@@ -96,6 +99,7 @@ def register_user(
 
 def _detect_faces_mediapipe(detector, frame):
     """Detect ALL faces in a frame using MediaPipe."""
+    # pyrefly: ignore [missing-import]
     import mediapipe as mp
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = detector.detector.process(rgb)

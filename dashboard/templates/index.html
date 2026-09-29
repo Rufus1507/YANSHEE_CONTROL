@@ -1,97 +1,294 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yanshee Face ID</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=3">
+    <title>Yanshee AI — Intelligent Robot Control System</title>
+    <meta name="description" content="Yanshee AI Robot Control Dashboard">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=6">
 </head>
-
 <body>
 
     <!-- Header -->
     <header class="app-header">
         <div class="header-left">
-            <h1 class="logo-title">YANSHEE FACE ID</h1>
+            <div class="logo-block">
+                <h1 class="logo-title">🤖 YANSHEE AI</h1>
+                <span class="logo-subtitle">AI · VISION · VOICE · ROBOTICS</span>
+            </div>
         </div>
+
         <div class="header-right">
-            <div class="status-item">
-                <span class="status-dot" id="light-cam"></span>
-                <span class="status-text">Camera: <span id="cam-text">Offline</span></span>
+            <div class="sys-ready">
+                <span class="icon">✅</span> SYSTEM READY
             </div>
-            <div class="status-item">
-                <span class="status-dot on" id="light-api"></span>
-                <span class="status-text">API: Live</span>
-            </div>
-            <div class="status-item">
-                <span class="status-dot" id="light-robot"></span>
-                <span class="status-text">Robot: <span id="robot-text">Offline</span></span>
+            <div class="status-group">
+                <div class="status-item">
+                    <span class="status-dot" id="light-cam"></span>
+                    <div class="status-text-block">
+                        <span class="status-label">Camera</span>
+                        <span class="status-val" id="cam-text">Offline</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot on" id="light-api"></span>
+                    <div class="status-text-block">
+                        <span class="status-label">API</span>
+                        <span class="status-val">Live</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="light-robot"></span>
+                    <div class="status-text-block">
+                        <span class="status-label">Robot</span>
+                        <span class="status-val" id="robot-text">Offline</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="light-voice"></span>
+                    <div class="status-text-block">
+                        <span class="status-label">Voice</span>
+                        <span class="status-val" id="voice-text">Off</span>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Main Layout -->
     <div class="layout-container">
-
-        <!-- Cột Trái (Camera Zone 70%) -->
+        
+        <!-- Camera Zone -->
         <div class="panel camera-zone">
+            <div class="panel-header glass-header">
+                <div class="ph-left">
+                    <span class="live-indicator"></span> CAMERA <span class="text-green">LIVE</span>
+                </div>
+                <div class="ph-right text-mono text-muted">
+                    <span><span class="icon">📺</span> 640 × 480</span>
+                    <span><span class="icon">⏱</span> <span id="cam-fps-top">--</span> FPS</span>
+                    <span><span class="icon">👤</span> Face Detection: ON</span>
+                    <span><span class="icon">🧬</span> Liveness: ON</span>
+                </div>
+            </div>
             <div class="video-container">
                 <img id="video-feed" src="/video_feed" alt="Live Feed" />
                 <canvas id="vision-overlay"></canvas>
             </div>
-            <div class="fps-overlay">FPS: <span id="fps-val">--</span> (Live)</div>
+            <div class="fps-overlay">FPS: <span id="fps-val">--</span> (<span class="text-green">Live</span>)</div>
         </div>
 
-        <!-- Cột Phải (Info Zone 30%) -->
-        <div class="info-zone">
-
-            <!-- Module 1: Người dùng hiện tại -->
-            <div class="panel module">
-                <h2 class="module-title">NGƯỜI DÙNG HIỆN TẠI</h2>
-                <div class="user-profile">
-                    <div class="avatar-box">
-                        <div class="avatar-icon" id="avatar-icon">👤</div>
+        <!-- System Metrics Zone -->
+        <div class="panel metrics-zone">
+            <div class="panel-header">
+                <h2 class="module-title"><span class="icon">⚙️</span> THÔNG SỐ HỆ THỐNG</h2>
+                <div class="ph-right text-muted text-sm">
+                    <span class="icon">⏱</span> Uptime: <span id="sys-uptime-top">--</span>
+                </div>
+            </div>
+            <div class="metrics-content">
+                <div class="circle-metrics">
+                    <div class="metric-circle-box">
+                        <div class="progress-circle" id="circ-cpu" style="--val: 0deg; --color: var(--accent-blue);">
+                            <div class="progress-circle-inner">
+                                <span class="mc-label">CPU</span>
+                                <span class="mc-val" id="sys-cpu">--%</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="user-info">
-                        <div class="user-name" id="user-name">--</div>
-                        <div class="user-role" id="user-role">--</div>
+                    <div class="metric-circle-box">
+                        <div class="progress-circle" id="circ-ram" style="--val: 0deg; --color: var(--accent-purple);">
+                            <div class="progress-circle-inner">
+                                <span class="mc-label">RAM</span>
+                                <span class="mc-val" id="sys-ram">--%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-circle-box">
+                        <div class="progress-circle" id="circ-disk" style="--val: 0deg; --color: var(--accent-green);">
+                            <div class="progress-circle-inner">
+                                <span class="mc-label">DISK</span>
+                                <span class="mc-val" id="sys-disk">--%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="confidence-container">
-                    <div class="conf-label">Độ tin cậy: <span id="user-conf">0%</span></div>
-                    <div class="conf-bar-bg">
-                        <div class="conf-bar-fill" id="conf-bar"></div>
+                <div class="linear-metrics">
+                    <div class="lm-box">
+                        <span class="lm-icon">📷</span>
+                        <div class="lm-info">
+                            <span class="lm-label">CAM FPS</span>
+                            <span class="lm-val" id="sys-cam-fps">--</span>
+                        </div>
+                    </div>
+                    <div class="lm-box">
+                        <span class="lm-icon">📶</span>
+                        <div class="lm-info">
+                            <span class="lm-label">LATENCY</span>
+                            <span class="lm-val">42 ms</span>
+                        </div>
+                    </div>
+                    <div class="lm-box">
+                        <span class="lm-icon">🤖</span>
+                        <div class="lm-info">
+                            <span class="lm-label">ROBOT</span>
+                            <span class="lm-val">12 ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Column: Current User, Liveness, Voice -->
+        <div class="zone-col col-mid">
+            
+            <!-- Current User -->
+            <div class="panel module">
+                <div class="panel-header">
+                    <h2 class="module-title"><span class="icon">👤</span> NGƯỜI DÙNG HIỆN TẠI</h2>
+                    <span class="link-text">Xem chi tiết →</span>
+                </div>
+                <div class="user-card">
+                    <div class="user-profile">
+                        <div class="avatar-box" id="avatar-box">
+                            <span id="avatar-icon">?</span>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name" id="user-name">--</div>
+                            <div class="user-id" id="user-role">ID: --</div>
+                            <div class="badge badge-outline" id="user-verified-badge">WAITING</div>
+                        </div>
+                    </div>
+                    <div class="user-stats">
+                        <div class="stat-col">
+                            <span class="stat-label">Confidence</span>
+                            <span class="stat-val" id="user-conf">--</span>
+                            <div class="conf-bar-bg"><div class="conf-bar-fill" id="conf-bar" style="width:0%"></div></div>
+                        </div>
+                        <div class="stat-col">
+                            <span class="stat-label">Liveness</span>
+                            <span class="stat-val" id="user-liv-text">--</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Module 2: Liveness -->
+            <!-- Liveness -->
             <div class="panel module">
-                <div class="liveness-header">
-                    <h2 class="module-title">KIỂM TRA ĐỘ SỐNG</h2>
-                    <span id="liveness-timer" class="liveness-timer"></span>
+                <div class="panel-header">
+                    <h2 class="module-title"><span class="icon">🧬</span> KIỂM TRA ĐỘ SỐNG</h2>
+                    <div class="badge badge-solid" id="liv-top-badge">WAITING</div>
                 </div>
-                <div class="liveness-steps" id="liveness-steps">
-                    <div class="liveness-placeholder">Đang chờ hệ thống...</div>
+                <div class="liveness-grid">
+                    <div class="liv-icon-box">
+                        <span class="icon">🏆</span>
+                    </div>
+                    <div class="liv-detail">
+                        <span class="ld-label">Challenge</span>
+                        <span class="ld-val" id="liv-challenge">--</span>
+                    </div>
+                    <div class="liv-detail">
+                        <span class="ld-label">Confidence</span>
+                        <span class="ld-val" id="liv-conf">--</span>
+                    </div>
+                    <div class="liv-detail">
+                        <span class="ld-label">Status</span>
+                        <span class="ld-val ld-status"><span class="dot" id="liv-dot"></span> <span id="liv-status">--</span></span>
+                    </div>
+                </div>
+                <div class="liveness-steps" id="liveness-steps" style="display:none;"></div>
+            </div>
+
+            <!-- Voice Control -->
+            <div class="panel module">
+                <div class="panel-header">
+                    <h2 class="module-title"><span class="icon">🎙️</span> ĐIỀU KHIỂN GIỌNG NÓI</h2>
+                    <div class="badge badge-outline badge-green" id="voice-top-badge">Đang chờ...</div>
+                </div>
+                <div class="voice-card">
+                    <div class="voice-wave-box">
+                        <span class="icon" id="voice-indicator">⏸️</span>
+                    </div>
+                    <div class="voice-details">
+                        <div class="vd-row">
+                            <span class="vd-label">Lệnh cuối:</span>
+                            <span class="vd-val" id="voice-last-text">"--"</span>
+                        </div>
+                        <div class="vd-row">
+                            <span class="vd-label">Nhận diện:</span>
+                            <span class="vd-val text-bold" id="voice-last-cmd">--</span>
+                        </div>
+                        <div class="vd-row">
+                            <span class="vd-label">Trạng thái:</span>
+                            <span class="vd-val text-blue" id="voice-status-text">Đang chờ nghe lệnh...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Right Column: Motion Progress, Action Queue -->
+        <div class="zone-col col-right">
+            
+            <!-- Motion Progress -->
+            <div class="panel module">
+                <div class="panel-header">
+                    <h2 class="module-title"><span class="icon">🏃</span> MOTION PROGRESS</h2>
+                </div>
+                <div class="motion-card">
+                    <div class="motion-main">
+                        <div class="motion-icon">🏃</div>
+                        <div class="motion-info">
+                            <div class="motion-name" id="motion-current-name">IDLE</div>
+                            <div class="motion-progress-bar">
+                                <div class="mp-fill" id="motion-progress-fill" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="motion-pct" id="motion-pct">0%</div>
+                    </div>
+                    <div class="motion-history">
+                        <div class="mh-col">
+                            <span class="mh-label">Previous</span>
+                            <span class="mh-val" id="motion-prev">--</span>
+                        </div>
+                        <div class="mh-col">
+                            <span class="mh-label">Next</span>
+                            <span class="mh-val" id="motion-next">--</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Module 3: Nhật ký sự kiện -->
-            <div class="panel module module-log">
-                <h2 class="module-title">NHẬT KÝ SỰ KIỆN</h2>
-                <div class="log-stream" id="log-stream">
+            <!-- Action Queue -->
+            <div class="panel module flex-1">
+                <div class="panel-header">
+                    <h2 class="module-title"><span class="icon">📋</span> ACTION QUEUE</h2>
+                    <span class="link-text">Xem tất cả (<span id="aq-size-top">0</span>)</span>
+                </div>
+                <div class="aq-list" id="aq-list">
+                    <!-- Dynamic Items Here -->
+                    <div class="aq-placeholder">Hàng đợi trống</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Event Log Zone -->
+        <div class="panel log-zone">
+            <div class="panel-header">
+                <h2 class="module-title"><span class="icon">📑</span> NHẬT KÝ SỰ KIỆN</h2>
+            </div>
+            <div class="log-stream-wrapper">
+                <div class="log-stream-timeline" id="log-stream">
                     <!-- Logs injected here -->
                 </div>
             </div>
-
         </div>
+
     </div>
 
-    <script src="/static/app.js?v=3"></script>
+    <script src="/static/app.js?v=6"></script>
 </body>
-
 </html>
