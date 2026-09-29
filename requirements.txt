@@ -8,3 +8,12 @@ sqlalchemy
 pyttsx3
 mediapipe
 psutil
+# Feature 5: Voice Control
+SpeechRecognition
+PyAudio
+# Feature 7: TTS & AI Assistant
+gTTS
+paramiko
+google-genai
+Pillow
+

@@ -1,3 +1,15 @@
+"""
+robot_action_engine.py — Bộ điều phối hành động robot tổng hợp.
+
+Tích hợp đầy đủ:
+- Greeting khi nhận diện khuôn mặt (Feature 1-4)
+- Lệnh giọng nói tiếng Việt (Feature 5)
+- TTS tiếng Việt qua SSH (Feature 7)
+- Action Queue có ưu tiên (Giải quyết thách thức #2)
+- Liveness feedback
+
+Tất cả hành động robot đều đi qua ActionQueue → tuần tự, không xung đột.
+"""
 import asyncio
 import time
 from logs.logger import get_logger
@@ -11,6 +23,7 @@ from config import (
 )
 from .robot_connection import RobotConnectionManager
 from .speech_engine import SpeechEngine
+from .action_queue import ActionQueue, RobotAction, ActionPriority
 
 logger = get_logger(__name__)
 
@@ -26,6 +39,12 @@ class RobotActionEngine:
         self._ever_connected = False
         self._liveness_passed_at: float = 0.0  # timestamp of last liveness pass
 
+        # ── Action Queue (Giải quyết thách thức #2) ──────────────────
+        self.action_queue = ActionQueue(event_bus=bus)
+
+        # ── Vietnamese TTS engine (lazy init) ────────────────────────
+        self._vn_tts = None
+
         # Subscribe to events
         self.bus.subscribe("USER_VERIFIED", self.handle_verified)
         self.bus.subscribe("UNKNOWN_USER", self.handle_unknown)
@@ -34,6 +53,35 @@ class RobotActionEngine:
         self.bus.subscribe("LIVENESS_PASSED", self.handle_liveness_passed)
         self.bus.subscribe("LIVENESS_FAILED", self.handle_liveness_failed)
         self.bus.subscribe("ROBOT_STATUS", self.handle_connection_status)
+
+        # ── Feature 5: Lệnh giọng nói ───────────────────────────────
+        self.bus.subscribe("VOICE_COMMAND", self.handle_voice_command)
+
+        # ── Feature 7: TTS tiếng Việt từ dashboard ───────────────────
+        self.bus.subscribe("TTS_REQUEST", self.handle_tts_request)
+
+        # ── Feature 11: Lệnh cử chỉ tay/pose (Gesture Control) ────────
+        self.bus.subscribe("GESTURE_COMMAND", self.handle_gesture_command)
+
+    async def start(self):
+        """Khởi động ActionQueue worker."""
+        await self.action_queue.start()
+        logger.info("[ACTION-ENGINE] ActionQueue đã khởi động")
+
+    async def stop(self):
+        """Dừng ActionQueue worker."""
+        await self.action_queue.stop()
+
+    def _get_vn_tts(self):
+        """Lazy init Vietnamese TTS (tránh import lỗi nếu chưa cài gTTS/paramiko)."""
+        if self._vn_tts is None:
+            try:
+                from voice.tts_engine import VietnameseTTS
+                self._vn_tts = VietnameseTTS()
+                logger.info("[ACTION-ENGINE] Vietnamese TTS engine đã khởi tạo")
+            except Exception as e:
+                logger.warning(f"[ACTION-ENGINE] Không thể khởi tạo VN TTS: {e}")
+        return self._vn_tts
 
     # ---------------------------------------------------------------------
     # Connection handling
@@ -55,6 +103,158 @@ class RobotActionEngine:
         if self.state != new_state:
             self.state = new_state
             self.bus.emit("ROBOT_STATUS", {"status": new_state.lower()})
+
+    # ---------------------------------------------------------------------
+    # Feature 5: Voice Command Handler
+    # ---------------------------------------------------------------------
+    async def handle_voice_command(self, payload: dict) -> None:
+        """
+        Xử lý lệnh giọng nói.
+        GIẢI QUYẾT THÁCH THỨC #2: Đưa vào ActionQueue với priority VOICE
+        (cao hơn GREETING), có thể pre-empt lệnh chào đang chạy.
+        """
+        motion = payload.get("motion", "")
+        raw_text = payload.get("raw_text", "")
+
+        if not motion:
+            return
+
+        if not self.robot_conn.connected:
+            logger.warning(f"[VOICE] Robot offline, không thể thực thi: {motion}")
+            self.bus.emit("VOICE_COMMAND_FAILED", {
+                "motion": motion, "reason": "robot_offline"
+            })
+            return
+
+        logger.info(f"[VOICE] → Enqueue motion: {motion} (từ '{raw_text}')")
+
+        # Tạo action cho voice command (priority cao hơn greeting)
+        action = RobotAction(
+            priority=ActionPriority.VOICE,
+            name=f"voice:{motion}",
+            coro_factory=lambda m=motion, t=raw_text: self._execute_voice_motion(m, t),
+            metadata={"motion": motion, "raw_text": raw_text, "source": "voice"},
+            timeout=20.0,
+            cancellable=False,  # Voice command không bị hủy bởi greeting
+        )
+        self.action_queue.enqueue(action)
+
+    async def _execute_voice_motion(self, motion: str, raw_text: str):
+        """Thực thi hành động robot từ lệnh giọng nói."""
+        self.set_state("EXECUTING_VOICE")
+        self.bus.emit("VOICE_EXECUTING", {"motion": motion, "raw_text": raw_text})
+
+        # Phản hồi TTS (nói lại lệnh)
+        confirm_text = f"Đang thực hiện {raw_text}"
+        tts_success = await asyncio.to_thread(self.robot_conn.send_tts, confirm_text)
+        if not tts_success:
+            await asyncio.to_thread(self.local_tts.say, confirm_text)
+
+        # Thực thi motion
+        motion_success = await asyncio.to_thread(self.robot_conn.send_motion, motion)
+        if motion_success:
+            await self._wait_for_motion_finish(timeout=15.0)
+            self.bus.emit("VOICE_COMMAND_SUCCESS", {"motion": motion})
+            logger.info(f"[VOICE] ✅ Robot đã thực thi: {motion}")
+        else:
+            self.bus.emit("VOICE_COMMAND_FAILED", {
+                "motion": motion, "reason": "motion_error"
+            })
+            logger.warning(f"[VOICE] ❌ Thất bại: {motion}")
+
+        self.set_state("READY")
+
+    # ---------------------------------------------------------------------
+    # Feature 11: Gesture Command Handler
+    # ---------------------------------------------------------------------
+    async def handle_gesture_command(self, payload: dict) -> None:
+        """
+        Xử lý lệnh cử chỉ tay/pose từ Gesture Camera.
+        Đưa vào ActionQueue với priority GESTURE (giữa VOICE và GREETING).
+        """
+        action_cmd = payload.get("action", "")
+        data = payload.get("data", {})
+
+        if not action_cmd:
+            return
+
+        if not self.robot_conn.connected:
+            logger.warning(f"[GESTURE] Robot offline, không thể thực thi: {action_cmd}")
+            return
+
+        motion_name = data.get("name", action_cmd)
+        logger.info(f"[GESTURE] → Enqueue: {action_cmd} (motion={motion_name})")
+
+        action = RobotAction(
+            priority=ActionPriority.GESTURE,
+            name=f"gesture:{action_cmd}:{motion_name}",
+            coro_factory=lambda cmd=action_cmd, d=data: self._execute_gesture_motion(cmd, d),
+            metadata={"action": action_cmd, "data": data, "source": "gesture"},
+            timeout=15.0,
+            cancellable=True,  # Có thể bị hủy bởi voice command
+        )
+        self.action_queue.enqueue(action)
+
+    async def _execute_gesture_motion(self, action_cmd: str, data: dict):
+        """Thực thi hành động robot từ lệnh cử chỉ."""
+        self.set_state("EXECUTING_GESTURE")
+        self.bus.emit("GESTURE_EXECUTING", {"action": action_cmd, "data": data})
+
+        if action_cmd == "stop_motion":
+            # Dừng motion hiện tại
+            await asyncio.to_thread(self.robot_conn.send_motion, "Reset")
+            logger.info("[GESTURE] ✅ Stop motion (Reset)")
+        elif action_cmd == "sync_play_motion":
+            motion_name = data.get("name", "")
+            if motion_name:
+                motion_success = await asyncio.to_thread(
+                    self.robot_conn.send_motion, motion_name
+                )
+                if motion_success:
+                    await self._wait_for_motion_finish(timeout=10.0)
+                    logger.info(f"[GESTURE] ✅ Robot đã thực thi: {motion_name}")
+                else:
+                    logger.warning(f"[GESTURE] ❌ Thất bại: {motion_name}")
+
+        self.bus.emit("GESTURE_COMPLETED", {"action": action_cmd, "data": data})
+        self.set_state("READY")
+
+    # ---------------------------------------------------------------------
+    # Feature 7: TTS tiếng Việt
+    # ---------------------------------------------------------------------
+    async def handle_tts_request(self, payload: dict) -> None:
+        """Xử lý yêu cầu TTS tiếng Việt (từ dashboard hoặc code khác)."""
+        text = payload.get("text", "")
+        if not text:
+            return
+
+        action = RobotAction(
+            priority=ActionPriority.TTS,
+            name=f"tts:{text[:30]}",
+            coro_factory=lambda t=text: self._execute_vn_tts(t),
+            metadata={"text": text},
+            timeout=30.0,
+            cancellable=True,
+        )
+        self.action_queue.enqueue(action)
+
+    async def _execute_vn_tts(self, text: str):
+        """Phát TTS tiếng Việt qua robot hoặc local."""
+        self.set_state("SPEAKING_VN")
+        self.bus.emit("TTS_STARTED", {"text": text})
+
+        vn_tts = self._get_vn_tts()
+        if vn_tts and self.robot_conn.connected:
+            success = await asyncio.to_thread(vn_tts.speak, text)
+        else:
+            # Fallback: dùng robot TTS tiếng Anh hoặc local
+            success = await asyncio.to_thread(self.robot_conn.send_tts, text)
+            if not success:
+                await asyncio.to_thread(self.local_tts.say, text)
+                success = True
+
+        self.bus.emit("TTS_FINISHED", {"text": text, "success": success})
+        self.set_state("READY")
 
     # ---------------------------------------------------------------------
     # Liveness event handlers (speech feedback)
@@ -111,7 +311,7 @@ class RobotActionEngine:
             await asyncio.to_thread(self.local_tts.say, spoken)
 
     # ---------------------------------------------------------------------
-    # Greeting for recognized users
+    # Greeting for recognized users (ĐÃ TÍCH HỢP ActionQueue)
     # ---------------------------------------------------------------------
     async def handle_verified(self, payload: dict) -> None:
         user_id = payload.get("user_id", "unknown")
@@ -121,27 +321,32 @@ class RobotActionEngine:
         if not self.robot_conn.connected:
             self.set_state("OFFLINE")
             return
-        if self.state not in ["READY", "OFFLINE"]:
-            logger.debug(f"Skipping action for {name}, robot busy (state={self.state})")
-            return
+
         now = time.time()
         last = self.last_greet.get(user_id, 0.0)
         if now - last < GREETING_COOLDOWN_SECONDS:
             logger.debug(f"Skipping greeting for {name} (cooldown)")
             return
         self.last_greet[user_id] = now
-        action = ROLE_ACTIONS.get(role, ROLE_ACTIONS.get("Unknown", {"speech": "Hello", "motion": None}))
-        speech = action["speech"].format(name=name)
-        motion = action["motion"]
+        action_cfg = ROLE_ACTIONS.get(role, ROLE_ACTIONS.get("Unknown", {"speech": "Hello", "motion": None}))
+        speech = action_cfg["speech"].format(name=name)
+        motion = action_cfg["motion"]
 
-        # If liveness just passed within the last 3 seconds, wait 2s so the
-        # "Liveness verification passed." TTS finishes before the greeting starts.
+        # Delay nếu liveness vừa pass
         delay = 0.0
         if self._liveness_passed_at and (now - self._liveness_passed_at) < 3.0:
             delay = 2.0
-            logger.debug(f"Delaying greeting {delay}s to let liveness-passed TTS finish")
 
-        self._action_task = asyncio.create_task(self.run_action_flow(user_id, name, speech, motion, delay=delay))
+        # ĐƯA VÀO ActionQueue thay vì tạo task trực tiếp
+        action = RobotAction(
+            priority=ActionPriority.GREETING,
+            name=f"greet:{name}",
+            coro_factory=lambda: self.run_action_flow(user_id, name, speech, motion, delay=delay),
+            metadata={"user_id": user_id, "name": name, "role": role},
+            timeout=30.0,
+            cancellable=True,  # Có thể bị hủy bởi voice command
+        )
+        self.action_queue.enqueue(action)
 
     # ---------------------------------------------------------------------
     # Greeting for unknown/stranger users
@@ -150,19 +355,25 @@ class RobotActionEngine:
         if not self.robot_conn.connected:
             self.set_state("OFFLINE")
             return
-        if self.state not in ["READY", "OFFLINE"]:
-            logger.debug(f"Skipping unknown action, robot busy (state={self.state})")
-            return
         now = time.time()
         last = self.last_greet.get("stranger", 0.0)
         if now - last < GREETING_COOLDOWN_SECONDS:
             logger.debug("Skipping stranger greeting (cooldown)")
             return
         self.last_greet["stranger"] = now
-        action = ROLE_ACTIONS.get("Stranger", {"speech": "Hello stranger", "motion": None})
-        speech = action["speech"]
-        motion = action["motion"]
-        self._action_task = asyncio.create_task(self.run_action_flow("stranger", "Stranger", speech, motion))
+        action_cfg = ROLE_ACTIONS.get("Stranger", {"speech": "Hello stranger", "motion": None})
+        speech = action_cfg["speech"]
+        motion = action_cfg["motion"]
+
+        action = RobotAction(
+            priority=ActionPriority.GREETING,
+            name="greet:stranger",
+            coro_factory=lambda: self.run_action_flow("stranger", "Stranger", speech, motion),
+            metadata={"user_id": "stranger"},
+            timeout=20.0,
+            cancellable=True,
+        )
+        self.action_queue.enqueue(action)
 
     # ---------------------------------------------------------------------
     # Core action flow (speak + optional motion + reset)

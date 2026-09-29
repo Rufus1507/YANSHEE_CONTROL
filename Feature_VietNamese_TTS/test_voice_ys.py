@@ -1,7 +1,9 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import YanAPI
 import time
 import speak_vnamese
-
 def main():
     print("[TEST SPEAK] Đang kết nối tới phần cứng Robot Yanshee...")
     
@@ -9,7 +11,6 @@ def main():
     
     try:
         YanAPI.set_robot_ip(robot_ip)
-        YanAPI.init()
         print(f"[TEST SPEAK] Kết nối thành công tới Robot tại IP: {robot_ip}")
     except Exception as connect_error:
         print(f"[LỖI KẾT NỐI] Không tìm thấy robot, kiểm tra lại Wi-Fi: {connect_error}")

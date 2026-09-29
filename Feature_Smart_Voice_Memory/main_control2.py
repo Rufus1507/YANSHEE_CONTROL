@@ -4,6 +4,9 @@ import time
 import voice_control2 as voice_system
 
 # Nhập thư viện API điều khiển robot Yanshee có sẵn trong thư mục
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import YanAPI
 
 def main():
@@ -16,10 +19,6 @@ def main():
     try:
         # 1. Khai báo IP đích danh của robot cho thư viện biết
         YanAPI.set_robot_ip(robot_ip)
-        
-        # 2. BẮT BUỘC PHẢI CÓ: Gọi hàm init() để chính thức kích hoạt đường truyền phần cứng!
-        # Không có hàm này, lệnh bắn đi sẽ bị chặn lại ở máy tính chứ không xuống được robot.
-        YanAPI.init()
         
         print(f"[MAIN SYSTEM] Kết nối thành công tới Robot Yanshee tại IP: {robot_ip}!")
     except Exception as init_error:

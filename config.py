@@ -154,3 +154,25 @@ MAX_HEAD_ROTATION_PITCH: float = 35.0 # degrees
 
 # ── Liveness per track ─────────────────────────────────────────────────────
 LIVENESS_PER_TRACK: bool = True        # each track has its own liveness state (always true)
+
+# ── Voice Control (Feature 5) ─────────────────────────────────────────────
+VOICE_ENABLED: bool = True             # Bật/tắt tính năng điều khiển giọng nói
+VOICE_MIC_INDEX: int | None = None     # None = micro mặc định, hoặc số index cụ thể
+VOICE_LANGUAGE: str = "vi-VN"          # Ngôn ngữ nhận diện giọng nói
+VOICE_PHRASE_TIME_LIMIT: int = 8       # Thời gian tối đa thu âm (giây)
+VOICE_LISTEN_TIMEOUT: int = 5          # Timeout chờ người nói (giây)
+
+# ── Vietnamese TTS (Feature 7) ────────────────────────────────────────────
+VN_TTS_ENABLED: bool = True            # Bật/tắt TTS tiếng Việt
+ROBOT_SSH_USER: str = "pi"             # SSH username cho Yanshee
+ROBOT_SSH_PASS: str = "raspberry"      # SSH password cho Yanshee
+ROBOT_SSH_PORT: int = 22               # SSH port
+
+# ── Smart Memory (Feature 6) ──────────────────────────────────────────────
+ROBOT_MEMORY_PATH: str = os.path.join(BASE_DIR, "data", "robot_memory.json")
+
+# ── Gesture Control (Feature 11 — Nhận diện cử chỉ tay/pose) ─────────────
+GESTURE_ENABLED: bool = False          # Mặc định TẮT — dùng: python main.py --gesture để bật
+GESTURE_CAMERA_INDEX: int = 1          # Index camera cho gesture (1 = camera thứ 2, tránh xung đột face camera)
+                                       # Đặt 0 nếu chỉ có 1 camera (sẽ dùng chung với face recognition)
+GESTURE_COOLDOWN_SEC: float = 3.0      # Thời gian phong ấn giữa 2 lệnh cử chỉ liên tiếp
