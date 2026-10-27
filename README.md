@@ -1,265 +1,286 @@
-# 🤖 TÀI LIỆU HƯỚNG DẪN TOÀN TẬP HỆ THỐNG ĐIỀU KHIỂN ROBOT YANSHEE AI
+# 🤖 TÀI LIỆU VẬN HÀNH HỆ THỐNG YANSHEE AI (INTEGRATED SYSTEM)
 
-Chào mừng bạn đến với dự án **Hệ thống Điều khiển và Tương tác Thông minh cho Robot Yanshee (Yanshee Integrated AI System)**. Tài liệu này cung cấp cái nhìn tổng quan về cách vận hành của toàn bộ hệ thống mã nguồn hiện tại và hướng dẫn chi tiết từng bước để cài đặt, cấu hình và vận hành dự án thành công.
-
----
-
-## 🌟 PHẦN 1: TỔNG QUAN HỆ THỐNG VÀ CẤU TRÚC MÃ NGUỒN
-
-Hệ thống biến Robot Yanshee thành một **Trợ lý Robot Thông minh**, tích hợp **10+ tính năng nâng cao** chạy đồng thời trên một kiến trúc bất đồng bộ (Asyncio + EventBus + ThreadPoolExecutor):
-
-### 🌟 10+ Tính năng Nổi bật Vận hành Trong Hệ thống:
-1. **Nhận diện Khuôn mặt Sinh trắc học (Face Recognition)**: Thuật toán Face Geometry Embedding v2 (kết hợp Pixel, HOG, LBP + Zero-Centering + Cosine Similarity) giúp nhận diện chính xác, kháng khoảng cách (Scale-Invariant) và chống nhận nhầm người lạ.
-2. **Chống Giả mạo (Liveness Detection)**: Thử thách ngẫu nhiên (chớp mắt, xoay mặt) để xác thực người thật.
-3. **Camera & Stream Network**: Phát trực tiếp luồng MJPEG HD từ camera trên đầu Robot Yanshee qua mạng không dây.
-4. **Hàng đợi Hành động Ưu tiên (ActionQueue & Greeting)**: Điều khiển Robot thực hiện cử chỉ/hành động chào mừng phù hợp theo từng vai trò (`Admin`, `Teacher`, `Student`, `Guest`, `Stranger`).
-5. **Nhận diện Giọng nói Tiếng Việt (Voice Control)**: Thu âm và xử lý lệnh tiếng Việt qua micro bất đồng bộ không gây hoãn/chặn luồng chính.
-6. **Bộ nhớ Thông minh (Smart Memory - `RobotMemory`)**: Quản lý và liên kết động giữa từ khóa giọng nói và các hành động cử chỉ của robot từ file cấu hình `robot_memory.json`.
-7. **Phát âm Tiếng Việt (Vietnamese TTS)**: Chuyển đổi văn bản phản hồi thành âm thanh (gTTS) và truyền tự động qua SSH để robot phát tiếng Việt trên loa tích hợp.
-8. **Web Dashboard Giám sát Realtime**: Giao diện Web (FastAPI + WebSocket) hiển thị video stream, trạng thái liveness, danh sách nhận diện và biểu đồ hệ thống.
-9. **Giám sát Tài nguyên (System Monitor)**: Theo dõi liên tục mức sử dụng CPU, RAM, Disk và lưu lượng mạng của hệ thống.
-10. **Hạ tầng Bất đồng bộ (Core Infrastructure)**: Quản lý sự kiện qua `EventBus`, cơ sở dữ liệu SQLite `yanshee_faceid.db`, tự động làm mới cache (Auto-Reload DB Watchdog) và hệ thống ghi log `loguru`.
-11. **Nhận diện Cử chỉ Tay/Pose (Gesture Control)**: Tích hợp MediaPipe Hands để nhận diện các tư thế tay và điều khiển robot tương ứng. Có khả năng chuyển đổi qua lại linh hoạt với chế độ nhận diện khuôn mặt ngay trên CLI.
+Hệ thống biến Robot Yanshee thành **Trợ lý Robot Thông minh**, tích hợp **11 tính năng nâng cao** chạy đồng bộ trên kiến trúc bất đồng bộ (`asyncio` + `EventBus` + đa luồng `threading`). Hệ thống có thể hoạt động độc lập trên máy tính (sử dụng Webcam máy tính và loa PC) hoặc kết nối trực tiếp điều khiển Robot Yanshee qua mạng không dây.
 
 ---
 
-### 📂 Cấu trúc Mã nguồn Chi tiết:
-- **`main.py`**: Entry point chính chạy toàn bộ hệ thống 10+ tính năng integrated. Chứa vòng lặp CLI tương tác trực tiếp (`1/face`, `2/gesture`, `quit`).
-- **`config.py`**: Nơi quản lý tập trung toàn bộ tham số cấu hình (IP Robot, ngưỡng sim 0.88, margin 0.020, required frames 5, cấu hình camera, voice, TTS, DB path...).
-- **`requirements.txt`**: Danh sách toàn bộ thư viện Python bắt buộc để vận hành hệ thống.
-- **`recognition/`**: Module xử lý nhận diện khuôn mặt (`face_detector.py`, `face_matcher.py`, `pipeline.py`, `register_user.py`).
-- **`gesture/`**: Module nhận diện cử chỉ tay (`gesture_bridge.py`, `gesture_recognizer.py`).
-- **`voice/`**: Module điều khiển giọng nói & bộ nhớ (`voice_controller.py`, `robot_memory.py`, `tts_engine.py`).
-- **`dashboard/`**: Trình quản lý Web Dashboard giao diện giám sát thời gian thực (`app.py`).
-- **`camera/`**: Quản lý kết nối & thu thập luồng camera (`camera_manager.py`).
-- **`robot/`**: Quản lý kết nối robot và hàng đợi thực thi cử chỉ (`robot_connection.py`, `robot_action_engine.py`).
-- **`System/`**: Module tầng thấp giao tiếp với API phần cứng Yanshee (`YanAPI.py`) và giám sát hệ thống (`monitor.py`).
-- **`database/` & `data/`**: Quản lý cơ sở dữ liệu SQLite (`yanshee_faceid.db`) và file từ điển bộ nhớ (`robot_memory.json`).
-- **`Feature_VietNamese_TTS/`**: Script kiểm tra tính năng Trợ lý AI Gemini (`yanshee_ai.py`).
-- **`Feature_Smart_Voice_Memory/`**: Script thử nghiệm độc lập tính năng Voice & Memory.
+## 🌟 PHẦN 1: CÁC TÍNH NĂNG VẬN HÀNH TRONG HỆ THỐNG
+
+1. **Nhận diện Khuôn mặt Sinh trắc học (Face Recognition)**:
+   - Thuật toán trích xuất đặc trưng `Enhanced (Pixel + HOG + LBP) v2` đạt vector 512 chiều.
+   - So khớp Cosine Similarity kết hợp Zero-Centering và biên an toàn (`FACE_SIMILARITY_MARGIN = 0.020`, `FACE_SIMILARITY_THRESHOLD = 0.88`).
+   - Kháng khoảng cách (Scale-Invariant), chống nhận nhầm người lạ (`Khách Lạ`).
+2. **Chống Giả mạo (Liveness Detection)**:
+   - Thử thách ngẫu nhiên cử động (chớp mắt, quay đầu trái/phải, ngửa/cúi mặt) trước khi xác thực.
+3. **Quản lý Nguồn Camera Đa năng (Camera Manager)**:
+   - Hỗ trợ cả **Webcam máy tính** (OpenCV) và **Camera MJPEG từ đầu Robot Yanshee** (HTTP Stream).
+   - Cơ chế hàng đợi kích thước tối đa 2 frame (`MAX_FRAME_QUEUE = 2`) để triệt tiêu độ trễ hình ảnh.
+4. **Hàng đợi Hành động Robot Có Ưu tiên (ActionQueue & Greeting)**:
+   - Quản lý các lệnh gửi tới robot theo hàng đợi ưu tiên: `VOICE > GESTURE > GREETING > IDLE`.
+   - Tự động chào hỏi và thực hiện cử chỉ theo vai trò người dùng (`Admin`, `Teacher`, `Student`, `Guest`, `Stranger`).
+5. **Nhận diện Giọng nói Tiếng Việt (Voice Control)**:
+   - Lắng nghe liên tục trên luồng riêng (`threading.Thread`), tự động khử ồn môi trường và nhận diện qua Google Speech Recognition.
+   - Hoàn toàn không gây đơ/lag khung hình camera.
+6. **Bộ nhớ Thông minh (Smart Memory - `RobotMemory`)**:
+   - Quản lý từ khóa lệnh tiếng Việt và ánh xạ tới 30+ động tác cử chỉ của robot qua file [`data/robot_memory.json`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/data/robot_memory.json).
+7. **Phát âm Tiếng Việt (Vietnamese TTS & Audio Routing)**:
+   - Tạo âm thanh tiếng Việt bằng `gTTS`.
+   - Hỗ trợ 3 chế độ phát loa qua cấu hình `AUDIO_OUTPUT_MODE`: `"PC"` (loa máy tính), `"ROBOT"` (loa robot qua SSH + `mpg123`), hoặc `"BOTH"` (phát cả hai).
+   - Tự động chuyển về loa máy tính (`local_tts` / `pyttsx3`) khi robot offline.
+8. **Web Dashboard Giám sát Realtime**:
+   - Máy chủ FastAPI (`http://127.0.0.1:8000`) cung cấp luồng video trực tiếp và WebSocket đẩy sự kiện thời gian thực.
+9. **Giám sát Tài nguyên Hệ thống (System Monitor)**:
+   - Thu thập thông số CPU, RAM, ổ đĩa, lưu lượng mạng và phát sự kiện `SYSTEM_METRICS` định kỳ 3 giây/lần.
+10. **Hạ tầng Cốt lõi (Core Infrastructure)**:
+    - Quản lý thông điệp tập trung qua `EventBus`, cơ sở dữ liệu SQLite [`data/yanshee_faceid.db`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/data/yanshee_faceid.db), tự động làm mới bộ nhớ khi có người đăng ký mới (Auto-Reload DB Watchdog), ghi log với `loguru`.
+11. **Nhận diện Cử chỉ Tay (Gesture Control)**:
+    - Sử dụng MediaPipe Hands để nhận diện các cử chỉ (Xòe tay, Nắm tay, Like, Dislike, Vẫy tay...).
+    - Chuyển đổi qua lại mượt mà với chế độ Nhận diện khuôn mặt trực tiếp ngay trên Terminal (CLI).
 
 ---
 
-## 💻 PHẦN 2: YÊU CẦU HỆ THỐNG
+## 📂 PHẦN 2: CẤU TRÚC THƯ MỤC DỰ ÁN
 
-1. **Phần cứng:**
-   - Máy tính (Windows 10/11 hoặc Linux/macOS) có kết nối Microphone.
-   - **Robot Yanshee** (đã bật nguồn và kết nối Wi-Fi).
-   - Máy tính và Robot Yanshee **bắt buộc kết nối cùng một mạng Wi-Fi (hoặc LAN)**.
-2. **Phần mềm:**
-   - **Python** (Khuyên dùng bản 3.10 hoặc 3.11).
-   - API Key Google Gemini (nếu muốn dùng tính năng trò chuyện AI trong `Feature_VietNamese_TTS/yanshee_ai.py`).
-
----
-
-## 🛠️ PHẦN 3: HƯỚNG DẪN CÀI ĐẶT (SETUP) CHI TIẾT
-
-### Bước 1: Thiết lập luồng Camera MJPEG trên Robot Yanshee (Chỉ làm 1 lần)
-Để robot tự động phát luồng camera stream qua mạng khi bật nguồn:
-
-1. **Kết nối SSH vào robot:**
-   ```cmd
-   ssh pi@<IP_CỦA_ROBOT>
-   ```
-   *(Ví dụ IP: `10.165.178.75`. Mật khẩu mặc định: `raspberry` hoặc `pi`).*
-
-2. **Tạo service khởi động Camera Stream:**
-   ```bash
-   sudo nano /etc/systemd/system/yanshee-camera.service
-   ```
-   Dán nội dung sau vào file:
-   ```ini
-   [Unit]
-   Description=Yanshee MJPEG Camera Streamer
-   After=network.target
-
-   [Service]
-   Type=simple
-   User=pi
-   WorkingDirectory=/home/pi
-   ExecStart=/usr/bin/python3 /home/pi/yanshee_mjpeg_streamer.py
-   Restart=always
-   RestartSec=3
-
-   [Install]
-   WantedBy=multi-user.target
-   ```
-   Nhấn **Ctrl + O** -> **Enter** -> **Ctrl + X** để lưu và thoát.
-
-3. **Tạo file script python camera streamer:**
-   ```bash
-   nano /home/pi/yanshee_mjpeg_streamer.py
-   ```
-   Dán đoạn code sau:
-   ```python
-   import cv2, time, threading
-   from flask import Flask, Response
-
-   app = Flask(__name__)
-   camera = None
-   lock = threading.Lock()
-   current_frame = None
-
-   def capture_loop():
-       global current_frame, camera
-       camera = cv2.VideoCapture(0)
-       camera.set(3, 640)
-       camera.set(4, 480)
-       camera.set(5, 30)
-       while True:
-           success, frame = camera.read()
-           if success:
-               ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-               if ret:
-                   with lock:
-                       current_frame = buffer.tobytes()
-           else:
-               time.sleep(0.1)
-
-   def generate_mjpeg():
-       while True:
-           with lock:
-               frame = current_frame
-           if frame is None:
-               time.sleep(0.1)
-               continue
-           yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-           time.sleep(1/30.0)
-
-   @app.route('/stream.mjpg')
-   def video_feed():
-       return Response(generate_mjpeg(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-   if __name__ == '__main__':
-       threading.Thread(target=capture_loop, daemon=True).start()
-       app.run(host='0.0.0.0', port=8000, debug=False, threaded=True, use_reloader=False)
-   ```
-   Lưu và thoát (**Ctrl + O** -> **Enter** -> **Ctrl + X**).
-
-4. **Kích hoạt Service:**
-   ```bash
-   pip install opencv-python Flask
-   sudo systemctl daemon-reload
-   sudo systemctl enable yanshee-camera
-   sudo systemctl start yanshee-camera
-   ```
+```text
+YANSHEE_CONTROL-main/
+├── main.py                  # Entry point chính chạy toàn bộ hệ thống
+├── config.py                # File cấu hình duy nhất của toàn bộ hệ thống
+├── requirements.txt         # Danh sách thư viện Python phụ thuộc
+├── YanAPI.py                # SDK giao tiếp phần cứng Robot Yanshee
+├── activate_env.ps1         # Script kích hoạt nhanh môi trường ảo
+├── camera/                  # Quản lý nguồn camera
+│   ├── camera_manager.py       # Bộ điều phối và chuyển nguồn camera
+│   ├── camera_source.py        # Interface trừu tượng nguồn camera
+│   ├── webcam_camera_source.py # Thu hình từ Webcam laptop/PC
+│   └── yanshee_camera_source.py# Thu luồng MJPEG từ đầu Robot Yanshee
+├── recognition/             # Nhận diện khuôn mặt & Liveness
+│   ├── pipeline.py             # Luồng xử lý pipeline nhận diện
+│   ├── face_matcher.py         # So khớp vector khuôn mặt (Cosine + Centroid)
+│   ├── embedding_extractor.py  # Trích xuất đặc trưng 512 chiều (Pixel+HOG+LBP)
+│   ├── canonical_normalizer.py # Chuẩn hóa khuôn mặt (căn chỉnh kích thước, góc)
+│   ├── face_database.py        # Thao tác đọc/ghi vector vào Database
+│   └── register_user.py        # Script đăng ký khuôn mặt người dùng mới
+├── vision/                  # Thị giác máy tính cơ bản
+│   ├── face_detector.py        # Bắt vị trí khuôn mặt bằng MediaPipe
+│   └── quality_checker.py      # Kiểm tra chất lượng ảnh (độ nét, ánh sáng, góc nghiêng)
+├── liveness/                # Chống giả mạo
+│   ├── liveness_manager.py     # Quản lý thử thách cử động khuôn mặt
+│   └── head_pose_detector.py   # Đo góc ngẩng/nghiêng/quay đầu
+├── robot/                   # Điều khiển & kết nối robot
+│   ├── robot_connection.py     # Giám sát nhịp tim (Heartbeat) & kết nối Robot
+│   ├── yanshee_client.py       # REST API client gửi lệnh motion / tts tới Robot
+│   ├── robot_action_engine.py  # Điều phối hành động chào đón, TTS, cử chỉ
+│   ├── action_queue.py         # Hàng đợi ưu tiên tránh xung đột lệnh
+│   ├── robot_audio_stream.py   # Stream âm thanh từ Robot về PC
+│   └── speech_engine.py        # TTS fallback trên máy tính cục bộ
+├── voice/                   # Giọng nói tiếng Việt
+│   ├── voice_controller.py     # Thu âm và nhận diện giọng nói nền
+│   ├── robot_memory.py         # Nạp và tra cứu từ khóa cử chỉ robot
+│   └── tts_engine.py           # Chuyển văn bản thành tiếng Việt (gTTS + SSH)
+├── gesture/                 # Điều khiển bằng cử chỉ tay
+│   ├── gesture_bridge.py       # Cầu nối gửi lệnh gesture vào ActionQueue
+│   └── cam_control.py          # Thuật toán MediaPipe nhận diện cử chỉ tay
+├── dashboard/               # Giao diện Web Dashboard
+│   ├── app.py                  # Máy chủ FastAPI + WebSocket
+│   ├── templates/              # HTML giao diện giám sát
+│   └── static/                 # CSS, JavaScript cho dashboard
+├── database/                # Khởi tạo SQLite
+│   ├── db.py                   # Quản lý kết nối SQLAlchemy
+│   └── models.py               # Định nghĩa bảng Users và Embeddings
+├── data/                    # Dữ liệu hệ thống
+│   ├── yanshee_faceid.db       # Cơ sở dữ liệu người dùng & vector khuôn mặt
+│   └── robot_memory.json       # Từ điển lệnh giọng nói ánh xạ hành động
+├── utils/                   # Tiện ích bổ trợ
+│   └── monitor.py              # Thu thập thông số phần cứng (CPU, RAM, Disk)
+├── logs/                    # Quản lý file log
+│   ├── logger.py               # Thiết lập định dạng loguru
+│   └── system.log              # File nhật ký hoạt động
+└── tools/                   # Các công cụ kiểm tra độc lập
+    ├── check_robot.py          # Kiểm tra kết nối và gửi lệnh thử tới Robot
+    ├── check_camera.py         # Kiểm tra danh sách camera kết nối PC
+    ├── check_tts.py            # Kiểm tra phát âm thanh TTS
+    ├── check_db.py             # Kiểm tra nhanh số lượng user trong database
+    ├── view_db.py              # Xem chi tiết danh sách user đã đăng ký
+    ├── reset_embeddings.py     # Xóa và tạo lại vector khi đổi model
+    └── install_streamer_service.sh # Cài service camera stream trên Robot
+```
 
 ---
 
-### Bước 2: Thiết lập Môi trường trên Máy Tính
+## 💻 PHẦN 3: YÊU CẦU HỆ THỐNG & CÀI ĐẶT
 
-1. **Mở Terminal tại thư mục dự án (`YANSHEE_CONTROL-main`) và tạo môi trường ảo:**
-   ```cmd
-   python -m venv .venv
-   ```
-2. **Kích hoạt môi trường ảo:**
-   - On Windows (CMD/PowerShell):
-     ```cmd
-     .venv\Scripts\activate
+### 1. Yêu cầu môi trường
+- **Hệ điều hành**: Windows 10/11, Ubuntu 20.04+, hoặc macOS.
+- **Python**: Khuyến nghị phiên bản **3.10** hoặc **3.11** (64-bit).
+- **Thiết bị**:
+  - Microphone (thu âm lệnh giọng nói).
+  - Webcam máy tính (nếu chạy chế độ độc lập) hoặc Robot Yanshee (nếu chạy điều khiển robot).
+  - Khi dùng Robot, PC và Robot **phải kết nối chung mạng Wi-Fi/LAN**.
+
+### 2. Các bước cài đặt trên Máy tính
+
+1. **Mở Terminal tại thư mục dự án và kích hoạt môi trường ảo:**
+   - Trên PowerShell (Windows):
+     ```powershell
+     .\activate_env.ps1
      ```
-3. **Cài đặt toàn bộ thư viện cần thiết:**
+     *Hoặc thủ công:*
+     ```cmd
+     python -m venv .venv
+     .\.venv\Scripts\activate
+     ```
+
+2. **Cài đặt các gói thư viện phụ thuộc:**
    ```cmd
    pip install -r requirements.txt
    ```
 
 ---
 
-### Bước 3: Cấu hình Hệ thống (`config.py`)
+## ⚙️ PHẦN 4: THIẾT LẬP CẤU HÌNH (`config.py`)
 
-Mở file **`config.py`** và tinh chỉnh các thông số quan trọng:
-- `ROBOT_IP = "10.165.178.75"` và `YANSHEE_IP = "10.165.178.75"`: Điền đúng địa chỉ IP thực tế của Robot Yanshee.
-- `YANSHEE_CAMERA_ENABLED = True`: Bật thu luồng stream camera từ robot Yanshee.
-- `VOICE_ENABLED = True`: Bật/tắt tính năng nhận diện giọng nói tiếng Việt.
-- `VN_TTS_ENABLED = True`: Bật/tắt tính năng phát giọng nói tiếng Việt qua SSH robot.
+Tất cả cấu hình được quản lý tập trung trong file [`config.py`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/config.py):
+
+| Nhóm tham số | Tên biến | Giá trị khuyên dùng | Chức năng |
+| :--- | :--- | :--- | :--- |
+| **Chế độ Camera** | `USE_WEBCAM` | `True` (dùng webcam PC)<br>`False` (dùng camera Robot) | Chọn nguồn camera cho hệ thống. |
+| | `CAMERA_INDEX` | `0` | Chỉ số Webcam máy tính (thường là 0 cho camera tích hợp). |
+| | `YANSHEE_CAMERA_ENABLED` | `False` (khi dùng webcam)<br>`True` (khi lấy stream Robot) | Bật/tắt kết nối luồng camera đầu robot. |
+| **Kết nối Robot** | `ROBOT_ENABLED` | `True` | Bật/tắt tính năng kết nối robot. |
+| | `ROBOT_IP` | `"10.36.31.75"` *(IP thực tế)* | Địa chỉ IP của Robot Yanshee trong mạng Wi-Fi. |
+| | `ROBOT_PORT` | `9090` | Cổng REST API của Robot (OpenADK). |
+| | `YANSHEE_IP` | `ROBOT_IP` | Tự động đồng bộ với `ROBOT_IP`. |
+| **Nhận diện Mặt** | `FACE_SIMILARITY_THRESHOLD` | `0.88` | Ngưỡng Cosine Similarity xác nhận đúng người. |
+| | `FACE_SIMILARITY_MARGIN` | `0.020` | Khoảng cách an toàn giữa người top 1 và top 2. |
+| | `REQUIRED_CONSISTENT_FRAMES` | `5` | Số khung hình liên tiếp khớp để xác nhận danh tính. |
+| | `LIVENESS_ENABLED` | `True` | Bật/tắt chống giả mạo khuôn mặt. |
+| **Giọng nói & Loa** | `VOICE_ENABLED` | `True` | Bật/tắt nhận diện giọng nói tiếng Việt. |
+| | `VN_TTS_ENABLED` | `True` | Bật/tắt phát âm phản hồi tiếng Việt. |
+| | `AUDIO_OUTPUT_MODE` | `"BOTH"` / `"PC"` / `"ROBOT"` | Chọn nơi phát âm thanh phản hồi. |
+| **Cử chỉ tay** | `GESTURE_ENABLED` | `False` | Mặc định khởi động ở chế độ Face (có thể đổi qua CLI). |
 
 ---
 
-## 🚀 PHẦN 4: HƯỚNG DẪN VẬN HÀNH HỆ THỐNG
+## 🚀 PHẦN 5: HƯỚNG DẪN VẬN HÀNH
 
-### 1. Đăng ký Khuôn mặt Người mới (Register User)
-Trước khi chạy hệ thống chính, bạn nên đăng ký khuôn mặt để robot nhận diện:
+### 1. Hai chế độ vận hành chính
+
+#### 🔹 Chế độ A: Chạy độc lập trên máy tính (Không cần Robot)
+Dùng khi phát triển, thuyết trình hoặc kiểm tra tính năng nhận diện, giọng nói, cử chỉ:
+1. Mở [`config.py`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/config.py):
+   ```python
+   USE_WEBCAM = True
+   YANSHEE_CAMERA_ENABLED = False
+   AUDIO_OUTPUT_MODE = "PC"
+   ```
+2. Khởi chạy hệ thống:
+   ```cmd
+   python main.py
+   ```
+   *Hệ thống tự động sử dụng Webcam laptop và loa máy tính. Trạng thái robot tự chuyển `offline` mà không gây lỗi.*
+
+#### 🔹 Chế độ B: Chạy đầy đủ kết nối với Robot Yanshee
+1. Khởi động Robot Yanshee, kết nối Robot vào cùng mạng Wi-Fi với máy tính.
+2. Kiểm tra IP của robot và điền vào [`config.py`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/config.py):
+   ```python
+   ROBOT_IP = "10.36.31.75"  # Thay bằng IP thực tế của Robot
+   USE_WEBCAM = False
+   YANSHEE_CAMERA_ENABLED = True
+   AUDIO_OUTPUT_MODE = "BOTH"
+   ```
+3. Chạy công cụ kiểm tra kết nối nhanh:
+   ```cmd
+   python tools/check_robot.py
+   ```
+   *Nếu màn hình hiện "Kết nối Robot thành công!", bạn đã sẵn sàng.*
+
+---
+
+### 2. Đăng ký Khuôn mặt Người dùng Mới
+
+Trước khi bắt đầu, hãy đăng ký khuôn mặt để robot có dữ liệu nhận diện:
 ```cmd
-python -X utf8 -m recognition.register_user --name "Ten Cua Ban" --role Student
+python -m recognition.register_user --name "Nguyen Van A" --role Student
 ```
-*Các quyền (`--role`) hỗ trợ:* `Admin`, `Teacher`, `Student`, `Guest`.
+- Các vai trò (`--role`): `Admin`, `Teacher`, `Student`, `Guest`.
+- Camera sẽ mở ra, bạn chỉ cần nhìn thẳng vào camera, quay nhẹ mặt để hệ thống tự động lưu 20-24 mẫu vector đặc trưng vào database.
+- Cơ chế **Auto-Reload Watchdog** sẽ tự động nạp dữ liệu người mới ngay lập tức mà **không cần khởi động lại `main.py`**.
 
 ---
 
-### 2. Khởi chạy Hệ thống Tổng hợp Tích hợp (Main System)
-Mọi tính năng (Nhận diện khuôn mặt, Liveness, Voice, Memory, TTS, Dashboard, System Monitor, Gesture CLI) đều được tích hợp chung trong `main.py`:
+### 3. Khởi chạy Hệ thống Chính (`main.py`)
 
+Chạy lệnh:
 ```cmd
 python main.py
 ```
 
-Khi hệ thống khởi động hoàn tất, bạn sẽ thấy giao diện CLI Tương tác trực tiếp:
+Khi hệ thống khởi động thành công, Terminal sẽ hiển thị Menu điều khiển tương tác:
 ```text
-─"*60
+────────────────────────────────────────────────────────────
   🎮  BẢNG ĐIỀU KHIỂN YANSHEE AI  (gõ lệnh + Enter)
-─"*60
+────────────────────────────────────────────────────────────
   [1 / face   ]  ▶ ĐANG CHẠY   — Nhận diện Khuôn mặt
   [2 / gesture]    chờ         — Nhận diện Cử chỉ tay
   [quit / exit]               — Dừng toàn bộ hệ thống
-─"*60
+────────────────────────────────────────────────────────────
 >>
 ```
 
-#### 🔄 Điều khiển Chuyển đổi Chế độ On-The-Fly (CLI Commands):
-- Gõ **`1`** hoặc **`face`**: Kích hoạt chế độ **Nhận diện Khuôn mặt** (Camera robot).
-- Gõ **`2`** hoặc **`gesture`**: Chuyển sang chế độ **Nhận diện Cử chỉ Tay** (Mở camera Gesture).
-- Gõ **`quit`** hoặc **`exit`**: Dừng an toàn toàn bộ hệ thống (dừng camera, voice thread, action queue, web server).
+#### 🎮 Điều khiển chuyển đổi chế độ trực tiếp (CLI on-the-fly):
+- **`1`** hoặc **`face`**: Bật chế độ Nhận diện khuôn mặt & Liveness.
+- **`2`** hoặc **`gesture`**: Chuyển sang chế độ Nhận diện cử chỉ tay (Camera cử chỉ sẽ mở ra).
+- **`quit`** hoặc **`exit`**: Dừng an toàn toàn bộ các luồng (Voice, Camera, ActionQueue, Dashboard).
 
 ---
 
-### 3. Truy cập Web Dashboard Giám sát Realtime
-Sau khi chạy `main.py`, hãy mở trình duyệt web và truy cập địa chỉ:
-👉 **http://127.0.0.1:8000**
+### 4. Truy cập Giao diện Web Dashboard
 
-Web Dashboard hiển thị:
-- Video Stream realtime từ camera.
-- Trạng thái Liveness & thông tin người được nhận diện.
-- Biểu đồ tài nguyên CPU, RAM, Disk, Network.
-- Danh sách sự kiện & nhật ký log hệ thống.
+Mở trình duyệt web và truy cập địa chỉ:
+👉 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
----
-
-### 4. Chạy Thử nghiệm Trợ lý Ảo AI Trò chuyện (Tùy chọn)
-Nếu muốn trò chuyện hỏi đáp kiến thức với AI Gemini qua giọng nói:
-1. Điền Gemini API Key vào file `Feature_VietNamese_TTS/yanshee_ai.py`.
-2. Chạy file:
-   ```cmd
-   python Feature_VietNamese_TTS/test_voice_ys.py
-   ```
+Giao diện Dashboard hiển thị:
+- **Khung video trực tiếp** kèm bounding box và thông tin người được nhận diện.
+- **Trạng thái kết nối**: Robot status, Camera status, Voice status.
+- **Biểu đồ tài nguyên phần cứng**: Tỷ lệ CPU, RAM, ổ đĩa, tiến trình Python.
+- **Bảng sự kiện thời gian thực** (WebSocket event feed).
 
 ---
 
-## ⚙️ PHẦN 5: BẢNG CẤU HÌNH THAM SỐ LÕI (`config.py`)
+### 5. Điều khiển bằng Giọng nói Tiếng Việt
 
-| Tham số | Giá trị hiện tại | Ý nghĩa / Chức năng |
-| :--- | :--- | :--- |
-| `FACE_SIMILARITY_THRESHOLD` | `0.88` | Ngưỡng Cosine similarity xác nhận đúng người. |
-| `FACE_SIMILARITY_MARGIN` | `0.020` | Khoảng chênh lệch giữa người đứng top 1 và top 2. |
-| `REQUIRED_CONSISTENT_FRAMES` | `5` | Số khung hình liên tiếp cần khớp trước khi đưa ra quyết định nhận diện. |
-| `MIN_FACE_SIZE` | `70` | Kích thước khuôn mặt tối thiểu (px) để nhận diện. |
-| `MIN_FACE_QUALITY` | `0.75` | Ngưỡng chất lượng ảnh tối thiểu (loại ảnh mờ/nhiễu). |
-| `MIN_BLUR_THRESHOLD` | `80.0` | Ngưỡng kiểm tra độ nét của ảnh mặt. |
-| `YANSHEE_CAMERA_ENABLED` | `True` | Bật/tắt luồng camera MJPEG từ robot. |
-| `VOICE_ENABLED` | `True` | Bật/tắt thu âm và nhận diện giọng nói tiếng Việt. |
-| `VN_TTS_ENABLED` | `True` | Bật/tắt phát âm thanh tiếng Việt qua SSH robot. |
-| `GESTURE_CAMERA_INDEX` | `1` | Index camera dùng cho nhận diện cử chỉ (Gesture). |
+Khi tính năng giọng nói được bật (`VOICE_ENABLED = True`), hệ thống tự động nghe lệnh qua micro. Các lệnh mẫu được định nghĩa sẵn trong [`data/robot_memory.json`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/data/robot_memory.json):
+- *"Đi thẳng"* / *"Tiến lên"* → Robot thực hiện động tác `Forward`.
+- *"Lùi lại"* → Robot thực hiện động tác `Backward`.
+- *"Rẽ trái"* / *"Rẽ phải"* → Robot rẽ hướng.
+- *"Đứng yên"* / *"Dừng lại"* → Robot `Reset` về tư thế chuẩn.
+- *"Chào bạn"* / *"Vẫy tay"* → Robot thực hiện động tác `RaiseRightHand` hoặc `Hug`.
 
 ---
 
-## 🔧 PHẦN 6: XỬ LÝ SỰ CỐ (TROUBLESHOOTING)
+## 🛠️ PHẦN 6: CÔNG CỤ HỖ TRỢ KIỂM TRA ĐỘC LẬP (`tools/`)
 
-1. **Lỗi `ModuleNotFoundError`?**
-   👉 Đảm bảo bạn đã kích hoạt môi trường ảo `.venv` và đã chạy `pip install -r requirements.txt`.
-2. **Camera Yanshee không stream được hoặc báo lỗi kết nối?**
-   👉 Kiểm tra lại địa chỉ IP robot trong `config.py`. Đảm bảo service `yanshee-camera` trên robot đang chạy và máy tính cùng mạng Wi-Fi với robot.
-3. **Microphone không thu âm được?**
-   👉 Đảm bảo micro máy tính đang bật và cấp quyền ứng dụng truy cập micro trong Settings > Privacy > Microphone của Windows.
-4. **Robot nhận diện đúng người trên màn hình nhưng không phát tiếng / không cử động?**
-   👉 Kiểm tra `ROBOT_ENABLED = True` và `VN_TTS_ENABLED = True` trong `config.py`. Kiểm tra SSH password/user (`pi` / `raspberry`).
+| Lệnh | Chức năng kiểm tra |
+| :--- | :--- |
+| `python tools/check_robot.py` | Kiểm tra kết nối mạng REST API tới robot và thử gửi 1 cử động. |
+| `python tools/check_camera.py` | Quét và kiểm tra chỉ số camera khả dụng trên máy tính. |
+| `python tools/check_tts.py` | Kiểm tra giọng nói TTS phát trên loa máy tính. |
+| `python tools/view_db.py` | Xem danh sách tất cả người dùng và số vector đã lưu trong DB. |
+| `python tools/reset_embeddings.py` | Xóa và tạo lại vector khi nâng cấp thuật toán trích xuất đặc trưng. |
 
 ---
-*Chúc bạn vận hành thành công Hệ thống Robot Yanshee AI!*
+
+## ❓ PHẦN 7: XỬ LÝ SỰ CỐ THƯỜNG GẶP (FAQ)
+
+1. **Lỗi `ModuleNotFoundError` khi chạy?**
+   - Đảm bảo đã kích hoạt môi trường ảo: `.\.venv\Scripts\activate`.
+   - Cài đặt đầy đủ gói: `pip install -r requirements.txt`.
+2. **Không có robot thì có chạy được nhận diện không?**
+   - Có! Đặt `USE_WEBCAM = True` và `YANSHEE_CAMERA_ENABLED = False` trong [`config.py`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/config.py), hệ thống sẽ chạy hoàn hảo trên webcam máy tính.
+3. **Camera bị đơ hoặc báo `Cannot open webcam`?**
+   - Kiểm tra xem có ứng dụng khác (Zoom, Teams, trình duyệt) đang chiếm quyền webcam không.
+   - Chạy `python tools/check_camera.py` để tìm đúng `CAMERA_INDEX` (thường là 0 hoặc 1).
+4. **Robot không phản hồi lệnh khi đã kết nối Wi-Fi?**
+   - Dùng lệnh `ping <IP_ROBOT>` trong terminal để kiểm tra thông mạng.
+   - Kiểm tra cổng REST API của robot (mặc định là `9090`).
+   - Chạy `python tools/check_robot.py` để xem thông báo lỗi chi tiết.
