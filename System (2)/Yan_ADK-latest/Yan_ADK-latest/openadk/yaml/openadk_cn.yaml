@@ -1,0 +1,1014 @@
+swagger: "2.0"
+info:
+  description: "
+  ## 概要说明
+
+  Open ADK 是提供给用户快速开发的工具包。它提供了如类的RESTful接口的封装。用户可以直接调用Open ADK中对应的接口，而不需要编写http/https通信的代码。
+  它主要提供如下两项功能。
+
+  - 各类编程接口的调用
+
+  - 接收订阅接口的推送消息
+
+  ## 依赖
+
+  Python 2.7 or 3.4+
+
+  ## 安装及使用
+
+  从github上获取源码
+
+  ```
+  pip install git+https://github.com/UBTEDU/Yanshee_OpenADK.git
+
+  ```
+  (可能需要使用root用户来安装： sudo pip install git+https://github.com/UBTEDU/Yanshee_OpenADK.git)
+
+  导入Open ADK的包:
+
+  ```
+
+  import openadk
+
+  ```
+
+  ## Setuptools
+
+  通过[Setuptools](https://pypi.org/project/setuptools/)安装:
+
+  ```
+  python setup.py install --user
+
+  ```
+  (或者使用sudo给所有用户安装)
+
+  导入Open ADK包：
+
+  ```
+
+  import openadk
+
+  ```
+
+  ## 快速开始
+
+  下面是一个快速开始的例子，请参考：
+
+  ```
+
+  from __future__ import print_function
+
+  import time
+
+  import openadk
+
+  from openadk.rest import ApiException
+
+  from pprint import pprint
+
+
+  # create an instance of the API class
+
+  configuration = openadk.Configuration()
+
+  configuration.host = 'http://<ip>:9090/v1'
+
+  api_instance = openadk.DevicesApi(openadk.ApiClient(configuration))
+
+
+  try:
+
+      \t# Get system's battery information
+
+      \tapi_response = api_instance.get_devices_battery()
+
+      \tpprint(api_response)
+
+  except ApiException as e:
+
+      \tprint(\"Exception when calling DevicesApi->get_devices_battery: %s\" % e)
+
+  ```
+
+  "
+  version: "1.0.0"
+  title: "Yanshee Open ADK"
+  termsOfService: "https://account.ubtrobot.com/gdpr/ukit/v1.0.3/TermsOfUse_en.html"
+  contact:
+    email: "swenggroup@ubtrobot.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+tags:
+- name: "subscriptions"
+  description: "机器人数据推送"
+
+paths:
+  /subscriptions/motions:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送运动控制状态"
+      description: "可以控制执行指定动作、暂停、继续、停止和复位"
+      operationId: "putMotions"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "运动控制的参数"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionMotionsStatusResponse"
+      responses:
+        200:
+          description: "成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/sensors/gyro:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送传感器消息"
+      description: ""
+      operationId: "putSensorsSubscription"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionSensorsGyroValueResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/sensors/ultrasonic:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送传感器消息"
+      description: ""
+      operationId: "putSensorsSubscriptionSensorsUltrasonic"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionSensorsUltrasonicValueResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/sensors/infrared:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送传感器消息"
+      description: ""
+      operationId: "putSensorsSubscriptionSensorsInfrared"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionSensorsInfraredValueResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/sensors/environment:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送传感器消息"
+      description: ""
+      operationId: "putSensorsSubscriptionSensorsEnvironment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionSensorsEnvironmentValueResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/sensors/touch:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送传感器消息"
+      description: ""
+      operationId: "putSensorsSubscriptionSensorsTouch"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionSensorsTouchValueResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/sensors/pressure:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送传感器消息"
+      description: ""
+      operationId: "putSensorsSubscriptionSensorsPressure"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionSensorsPressureValueResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/visions:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送指定视觉任务消息"
+      description: "URL example: http://10.10.1.30:80/subscriptions/visions"
+      operationId: "putVisionSubscriptionVisions"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionVisionsGetResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/voice/iat:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送语音识别原始JSON信息"
+      description: "URL example: http://10.10.1.30:80/subscriptions/voice/iat"
+      operationId: "putVoiceIatSubscriptionVoiceIAT"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionVoiceResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/voice/asr:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送语义理解消息"
+      description: "URL example: http://10.10.1.30:80/subscriptions/voice/asr"
+      operationId: "putVoiceAsrSubscriptionsVoiceASR"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionVoiceResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+  /subscriptions/voice/tts:
+    put:
+      tags:
+      - "subscriptions"
+      summary: "推送TTS状态消息"
+      description: "URL example: http://10.10.1.30:80/tts"
+      operationId: "putTTSSubscriptionsVoiceTTS"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SubscriptionVoiceResponse"
+      responses:
+        200:
+          description: "发送成功"
+          schema:
+            $ref: "#/definitions/SubscriptionCommonResponse"
+
+#securityDefinitions:
+#  robotinfostore_auth:
+#    type: "oauth2"
+#    authorizationUrl: "http://robotinfostore.swagger.io/oauth/dialog"
+#    flow: "implicit"
+#    scopes:
+#      write:robotinfos: "modify robotinfos in your account"
+#      read:robotinfos: "read your robotinfos"
+#  api_key:
+#    type: "apiKey"
+#    name: "api_key"
+#    in: "header"
+definitions:
+  SubscriptionName:
+    type: "object"
+    required:
+      - "name"
+    properties:
+      name:
+        type: "string"
+    xml:
+      name: "SubscriptionName"
+
+  SubscriptionVisionsResults:
+    type: "object"
+    properties:
+      analysis:
+        $ref: "#/definitions/SubscriptionVisionsAnalysis"
+      recognition:
+        $ref: "#/definitions/SubscriptionName"
+      quantity:
+        type: "integer"
+        description: "数量, 0 ~ ??? (整数)"
+        minimum: 0
+        example: 1
+      color:
+        type: "array"
+        description: "所有可返回的颜色列表, 列表值有 'none', 'black', 'gray', 'white', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple'"
+        items:
+          $ref: "#/definitions/SubscriptionName"
+        example: ['name':'black', {'name':'gray'}, {'name':'red'}, {'name':'blue'}]
+    xml:
+      name: "SubscriptionVisionsResults"
+
+  SubscriptionVisionsGetResponse:
+    type: "object"
+    required:
+      - "code"
+      - "type"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        example: 0
+      type:
+        type: "string"
+        enum:
+          - "recognition"
+          - "tracking"
+          - "gender"
+          - "age_group"
+          - "quantity"
+          - "color_detect"
+        description: "消息类型。 一次只返回一种类型的数据。 type 允许的值为: 'recognition', 'tracking','gender', 'age_group', 'quantity', 'color_detect'"
+      data:
+        $ref: "#/definitions/SubscriptionVisionsResults"
+      timestamp:
+        type: "integer"
+        format: "int64"
+        description: "任务时间戳"
+        example: 1551838515
+      status:
+        type: "string"
+        description: "状态"
+        example: "idle"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionVisionsGetResponse"
+
+  SubscriptionVoiceResponse:
+    type: "object"
+    description: "asr与iat推送JSON"
+    required:
+      - "code"
+      - "type"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        example: 0
+      type:
+        type: "string"
+        enum:
+          - "asr"
+          - "iat"
+          - "tts"
+        description: "
+        消息类型。可接受的参数有：
+
+        - asr
+
+        - iat
+
+        - tts
+        "
+        example: "asr"
+      data:
+        description: "数据"
+        type: "object"
+        example: {}
+      status:
+        type: "string"
+        description: "
+        状态值 
+  
+        - build
+        
+        - idle
+        
+        - run 
+        
+        "
+        example: "idle"
+      timestamp:
+        description: "时间戳"
+        type: "integer"
+        format: "int64"
+        example: 1000789666
+      msg:
+        description: "提示信息"
+        type: "string"
+    xml:
+      name: "SubscriptionVoiceResponse"
+
+  SubscriptionCommonResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        type: "object"
+        example: {}
+      msg:
+        description: "提示信息"
+        type: "string"
+        example: "Success"
+    xml:
+      name: "SubscriptionCommonResponse"
+
+  SubscriptionSensorsEnvironmentInfo:
+    type: "object"
+    required:
+      - "id"
+      - "temperature"
+      - "humidity"
+    properties:
+      id:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 127
+        example: 54
+      slot:
+        type: "integer"
+        description: "传感器槽位号"
+        format: "int32"
+        minimum: 1
+        maximum: 6
+        example: 1
+      temperature:
+        description: "温度值"
+        type: "integer"
+        format: "int32"
+        example: 25
+      humidity:
+        description: "湿度值"
+        type: "integer"
+        format: "int32"
+        example: 75
+      pressure:
+        description: "大气压力"
+        type: "integer"
+        format: "int32"
+        example: 1003
+    xml:
+      name: "SubscriptionSensorsEnvironmentInfo"
+
+  SubscriptionSensorsEnvironmentValue:
+    type: "object"
+    required:
+      - "environment"
+    properties:
+      environment:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubscriptionSensorsEnvironmentInfo"
+    xml:
+      name: "SubscriptionSensorsEnvironmentValue"
+
+  SubscriptionSensorsEnvironmentValueResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionSensorsEnvironmentValue"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionSensorsEnvironmentValueResponse"
+
+  SubscriptionSensorsInfraredInfo:
+    type: "object"
+    required:
+      - "id"
+      - "value"
+    properties:
+      id:
+        description: "传感器地址"
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 127
+        example: 23
+      slot:
+        type: "integer"
+        description: "传感器槽位号"
+        format: "int32"
+        minimum: 1
+        maximum: 6
+        example: 1
+      value:
+        description: "距离值，单位毫米"
+        type: "integer"
+        format: "int32"
+        example: 25
+    xml:
+      name: "SubscriptionSensorsInfraredInfo"
+
+  SubscriptionSensorsInfraredValue:
+    type: "object"
+    required:
+      - "infrared"
+    properties:
+      infrared:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubscriptionSensorsInfraredInfo"
+    xml:
+      name: "SubscriptionSensorsInfraredValue"
+
+  SubscriptionSensorsInfraredValueResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionSensorsInfraredValue"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionSensorsInfraredValueResponse"
+
+  SubscriptionSensorsPressureInfo:
+    type: "object"
+    required:
+      - "id"
+      - "value"
+    properties:
+      id:
+        description: "传感器地址"
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 127
+        example: 35
+      slot:
+        type: "integer"
+        description: "传感器槽位号"
+        format: "int32"
+        minimum: 1
+        maximum: 6
+        example: 1
+      value:
+        description: "压力值，单位：牛"
+        type: "integer"
+        format: "int32"
+        example: 25
+    xml:
+      name: "SubscriptionSensorsPressureInfo"
+
+  SubscriptionSensorsPressureValue:
+    type: "object"
+    required:
+      - "pressure"
+    properties:
+      pressure:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubscriptionSensorsPressureInfo"
+    xml:
+      name: "SubscriptionSensorsUltrasonicValue"
+
+  SubscriptionSensorsPressureValueResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionSensorsPressureValue"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionSensorsPressureValueResponse"
+
+  SubscriptionSensorsTouchInfo:
+    type: "object"
+    required:
+      - "id"
+      - "value"
+    properties:
+      id:
+        description: "传感器地址"
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 127
+        example: 29
+      slot:
+        type: "integer"
+        description: "传感器槽位号"
+        format: "int32"
+        minimum: 1
+        maximum: 6
+        example: 1
+      value:
+        description: "值说明：0未触摸，1触摸btn1，2触摸btn2，3触摸两边"
+        type: "integer"
+        format: "int32"
+        example: 25
+    xml:
+      name: "SubscriptionSensorsTouchInfo"
+  SubscriptionSensorsTouchValue:
+    type: "object"
+    required:
+      - "touch"
+    properties:
+      touch:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubscriptionSensorsTouchInfo"
+    xml:
+      name: "SubscriptionSensorsTouchValue"
+
+  SubscriptionSensorsTouchValueResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionSensorsTouchValue"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionSensorsTouchValueResponse"
+
+  SubscriptionSensorsUltrasonicInfo:
+    type: "object"
+    required:
+      - "id"
+      - "value"
+    properties:
+      id:
+        description: "传感器地址"
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 127
+        example: 17
+      slot:
+        type: "integer"
+        description: "传感器槽位号"
+        format: "int32"
+        minimum: 1
+        maximum: 6
+        example: 1
+      value:
+        description: "距离值，单位毫米"
+        type: "integer"
+        format: "int32"
+        example: 25
+    xml:
+      name: "SubscriptionSensorsUltrasonicInfo"
+  SubscriptionSensorsUltrasonicValue:
+    type: "object"
+    required:
+      - "ultrasonic"
+    properties:
+      ultrasonic:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubscriptionSensorsUltrasonicInfo"
+    xml:
+      name: "SubscriptionSensorsUltrasonicValue"
+
+  SubscriptionSensorsUltrasonicValueResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionSensorsUltrasonicValue"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionSensorsUltrasonicValueResponse"
+
+  SubscriptionSensorsGyroInfo:
+    type: "object"
+    required:
+      - "id"
+      - "euler-x"
+      - "euler-y"
+      - "euler-z"
+    properties:
+      id:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 127
+        example: 52
+      gyro-x:
+        type: "number"
+        format: "float"
+        example: 0.1021
+      gyro-y:
+        type: "number"
+        format: "float"
+        example: 0.6020
+      gyro-z:
+        type: "number"
+        format: "float"
+        example: 0.0213
+      accel-x:
+        type: "number"
+        format: "float"
+        example: 0.147949
+      accel-y:
+        type: "number"
+        format: "float"
+        example: 0.116699
+      accel-z:
+        type: "number"
+        example: 0.813477
+      compass-x:
+        type: "number"
+        format: "float"
+        example: 0.1021
+      compass-y:
+        type: "number"
+        format: "float"
+        example: 0.602
+      compass-z:
+        type: "number"
+        format: "float"
+        example: 0.01232
+      euler-x:
+        type: "number"
+        format: "float"
+        example: 8.073578
+      euler-y:
+        type: "number"
+        format: "float"
+        example: -10.11795
+      euler-z:
+        type: "number"
+        format: "float"
+        example: 0.72052
+    xml:
+      name: "SubscriptionSensorsGyroInfo"
+  SubscriptionSensorsGyroValue:
+    type: "object"
+    required:
+      - "gyro"
+    properties:
+      gyro:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubscriptionSensorsGyroInfo"
+    xml:
+      name: "SubscriptionSensorsGyroValue"
+
+  SubscriptionSensorsGyroValueResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionSensorsGyroValue"
+      msg:
+        type: "string"
+        description: "提示信息"
+        example: "Success"
+    xml:
+      name: "SubscriptionSensorsGyroValueResponse"
+
+  SubscriptionMotionsStatus:
+    type: "object"
+    required:
+      - "status"
+    properties:
+      status:
+        type: "string"
+        description: "运行状态"
+        enum:
+          - "idle"
+          - "run"
+          - "pause"
+      name:
+        type: "string"
+        description: "动作名"
+        default: "None"
+      timestamp:
+        type: "integer"
+        format: "int64"
+        description: "时间戳, Unix标准时间"
+        example: 1551838515
+
+  SubscriptionMotionsStatusResponse:
+    type: "object"
+    required:
+      - "code"
+      - "data"
+      - "msg"
+    properties:
+      code:
+        type: "integer"
+        description: "返回码，0表示正常"
+        format: "int32"
+      data:
+        $ref: "#/definitions/SubscriptionMotionsStatus"
+      msg:
+        description: "提示信息"
+        type: "string"
+        example: "Success"
+    xml:
+      name: "SubscriptionMotionsStatusResponse"
+
+  SubscriptionVisionsGender:
+    type: "object"
+    required:
+      - "gender"
+    properties:
+      gender:
+        type: "string"
+        enum:
+          - "male"
+          - "female"
+          - "none"
+        description: "性别。此处的值有 'male', 'female', 'none' 其中 'none' 为初始不存在"
+    xml:
+      name: "SubscriptionVisionsGender"
+
+  SubscriptionVisionsAge:
+    type: "object"
+    properties:
+      age:
+        type: "integer"
+        description: "年龄"
+        example: 5
+        minimum: 0
+      group:
+        type: "string"
+        description: "年龄段。 返回值有: 'baby', 'children', 'juvenile', 'youth', 'middle_age', 'old_age', 'none' "
+        example: "baby"
+    xml:
+      name: "SubscriptionVisionsAge"
+
+  SubscriptionVisionsAnalysis:
+    type: "object"
+    properties:
+      age:
+        $ref: "#/definitions/SubscriptionVisionsAge"
+      gender:
+        $ref: "#/definitions/SubscriptionVisionsGender"
+    xml:
+      name: "SubscriptionVisionsAnalysis"
+
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
+# Added by API Auto Mocking Plugin
+host: "127.0.0.1:10101"
+basePath: "/v1"
+schemes:
+- http

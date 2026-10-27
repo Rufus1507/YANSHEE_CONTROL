@@ -1,0 +1,124 @@
+{
+    "Forward": [
+        "đi thẳng",
+        "tiến lên",
+        "đi tới"
+    ],
+    "Backward": [
+        "đi lùi",
+        "lùi lại"
+    ],
+    "TurnLeft": [
+        "rẽ trái",
+        "quay trái"
+    ],
+    "TurnRight": [
+        "rẽ phải",
+        "quay phải"
+    ],
+    "Stop": [
+        "dừng lại",
+        "đứng yên",
+        "thôi",
+        "dừng"
+    ],
+    "Reset": [
+        "khởi động lại",
+        "về vị trí cũ",
+        "đứng nghiêm"
+    ],
+    "OneStepForward": [
+        "tiến một bước",
+        "bước lên"
+    ],
+    "OneStepBackward": [
+        "lùi một bước",
+        "bước lùi"
+    ],
+    "OneStepTurnLeft": [
+        "xoay trái một bước"
+    ],
+    "OneStepTurnRight": [
+        "xoay phải một bước"
+    ],
+    "OneStepMoveLeft": [
+        "nhích sang trái",
+        "bước sang trái"
+    ],
+    "OneStepMoveRight": [
+        "nhích sang phải",
+        "bước sang phải"
+    ],
+    "Move_fast": [
+        "chạy nhanh",
+        "tăng tốc"
+    ],
+    "RaiseRightHand": [
+        "giơ tay phải"
+    ],
+    "Wave": [
+        "vẫy tay",
+        "tạm biệt",
+        "xin chào",
+        "giơ hai tay lên"
+    ],
+    "Hug": [
+        "ôm cái nào",
+        "ôm"
+    ],
+    "Victory": [
+        "chiến thắng",
+        "vô địch",
+        "chạy nhảy chạy nhảy"
+    ],
+    "EnterEnergySavingSquat": [
+        "tiết kiệm pin",
+        "ngồi xổm xuống"
+    ],
+    "ExitEnergySavingReset": [
+        "thoát tiết kiệm pin",
+        "đứng dậy đi"
+    ],
+    "WakaWaka": [
+        "nhảy waka waka",
+        "vũ điệu waka",
+        "waka waka"
+    ],
+    "MerryChristmas": [
+        "giáng sinh",
+        "nhảy noel",
+        "merry christmas"
+    ],
+    "HappyBirthday": [
+        "sinh nhật",
+        "chúc mừng sinh nhật"
+    ],
+    "SweetAndSour": [
+        "nhảy chua ngọt",
+        "sweet and song"
+    ],
+    "PushUp": [
+        "hít đất",
+        "chống đẩy"
+    ],
+    "Football_RKick": [
+        "đá chân phải",
+        "sút bằng chân phải"
+    ],
+    "Football_LKick": [
+        "đá chân trái",
+        "sút bằng chân trái"
+    ],
+    "LeftSidePunch": [
+        "đấm bên trái"
+    ],
+    "RightSidePunch": [
+        "đấm bên phải"
+    ],
+    "LeftHitForward": [
+        "đấm thẳng tay trái"
+    ],
+    "RightHitForward": [
+        "đấm thẳng tay phải"
+    ]
+}
