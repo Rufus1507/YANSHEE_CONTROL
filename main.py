@@ -40,6 +40,7 @@ from config import (
     UNKNOWN_SHUTDOWN_DELAY_SECONDS, FACE_MODEL_NAME,
     FACE_SIMILARITY_THRESHOLD, FACE_SIMILARITY_MARGIN,
     YANSHEE_CAMERA_ENABLED, YANSHEE_IP, YANSHEE_STREAM_PORT,
+    USE_WEBCAM, CAMERA_INDEX,
     GESTURE_CAMERA_INDEX,
     VOICE_ENABLED, VOICE_MIC_INDEX,
 )
@@ -58,7 +59,7 @@ from recognition.pipeline import RecognitionPipeline
 from robot.robot_connection import RobotConnectionManager
 from robot.robot_action_engine import RobotActionEngine
 from dashboard.app import start_dashboard_server
-from System.monitor import SystemMonitor
+from utils.monitor import SystemMonitor
 from voice.robot_memory import RobotMemory
 from voice.voice_controller import VoiceController
 from gesture.gesture_bridge import GestureBridge
@@ -164,10 +165,10 @@ async def main():
     if users_count == 0 or embeddings_count == 0:
         print_db_warning()
 
-    if YANSHEE_CAMERA_ENABLED:
-        print(f"  Camera source     : Yanshee Head Camera ({YANSHEE_IP}:{YANSHEE_STREAM_PORT})")
+    if USE_WEBCAM or not YANSHEE_CAMERA_ENABLED:
+        print(f"  Camera source     : Local Webcam (index {CAMERA_INDEX})")
     else:
-        print(f"  Camera source     : Legacy webcam (DISABLED)")
+        print(f"  Camera source     : Yanshee Head Camera ({YANSHEE_IP}:{YANSHEE_STREAM_PORT})")
 
     print(f"\n[EMBEDDING] Extractor: Enhanced (Pixel + HOG + LBP) v2")
     print(f"  NOTE: Nếu vừa nâng cấp từ phiên bản cũ, hãy đăng ký lại user bằng:")

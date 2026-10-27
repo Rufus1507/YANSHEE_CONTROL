@@ -1,4 +1,12 @@
+from __future__ import annotations
+
+from PIL import ImageFont
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    load_dotenv = lambda: None
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -74,7 +82,7 @@ BLINK_REQUIRED_COUNT: int = 1
 
 # Robot settings
 ROBOT_ENABLED: bool = True
-ROBOT_IP: str = "10.165.178.75"
+ROBOT_IP: str = "10.36.31.75" 
 ROBOT_PORT: int = 9090
 ROBOT_TIMEOUT: int = 3  # seconds
 AUTO_RECONNECT: bool = True
@@ -119,8 +127,9 @@ LOG_PATH: str = os.path.join(BASE_DIR, "logs", "system.log")
 
 # ---------------------------------------------------
 # Cấu hình camera Yanshee (được bật khi YANSHEE_CAMERA_ENABLED=True)
-YANSHEE_CAMERA_ENABLED: bool = True          # bật/tắt camera Yanshee
-YANSHEE_IP: str = "10.165.178.75"            # IP robot (cùng với ROBOT_IP)
+YANSHEE_CAMERA_ENABLED: bool = False         # bật/tắt camera Yanshee
+USE_WEBCAM: bool = True      # Toggle use of local laptop webcam instead of Yanshee camera
+YANSHEE_IP: str = ROBOT_IP            # Tự động đồng bộ với ROBOT_IP
 YANSHEE_STREAM_PORT: int = 8000              # cổng stream MJPEG
 YANSHEE_STREAM_TIMEOUT: float = 5.0          # timeout kết nối HTTP (s)
 YANSHEE_STREAM_RESOLUTION: str = "1280x720"   # chỉ dành cho diagnostic
@@ -163,7 +172,19 @@ VOICE_PHRASE_TIME_LIMIT: int = 8       # Thời gian tối đa thu âm (giây)
 VOICE_LISTEN_TIMEOUT: int = 5          # Timeout chờ người nói (giây)
 
 # ── Vietnamese TTS (Feature 7) ────────────────────────────────────────────
+# Load environment variables from .env (if present)
+load_dotenv()
+GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 VN_TTS_ENABLED: bool = True            # Bật/tắt TTS tiếng Việt
+# ── Cấu hình Loa (PC vs Robot) ────────────────────────────────────────────
+# Chỉ cần thay đổi dòng dưới đây: "PC" (Chỉ loa PC), "ROBOT" (Chỉ loa Robot), hoặc "BOTH" (Phát cả hai)
+AUDIO_OUTPUT_MODE: str = "BOTH"
+
+# Backward-compatible aliases for older modules.
+# Prefer changing AUDIO_OUTPUT_MODE above instead of editing these directly.
+PLAY_AUDIO_ON_ROBOT: bool = AUDIO_OUTPUT_MODE.upper() == "BOTH"
+PLAY_AUDIO_BOTH: bool = AUDIO_OUTPUT_MODE.upper() == "BOTH"
+
 ROBOT_SSH_USER: str = "pi"             # SSH username cho Yanshee
 ROBOT_SSH_PASS: str = "raspberry"      # SSH password cho Yanshee
 ROBOT_SSH_PORT: int = 22               # SSH port
@@ -171,8 +192,10 @@ ROBOT_SSH_PORT: int = 22               # SSH port
 # ── Smart Memory (Feature 6) ──────────────────────────────────────────────
 ROBOT_MEMORY_PATH: str = os.path.join(BASE_DIR, "data", "robot_memory.json")
 
+# ── Feature 12: Robot Audio Stream ────────────────────────────────────────
+ROBOT_AUDIO_STREAM_ENABLED: bool = True
+
 # ── Gesture Control (Feature 11 — Nhận diện cử chỉ tay/pose) ─────────────
 GESTURE_ENABLED: bool = False          # Mặc định TẮT — dùng: python main.py --gesture để bật
-GESTURE_CAMERA_INDEX: int = 1          # Index camera cho gesture (1 = camera thứ 2, tránh xung đột face camera)
-                                       # Đặt 0 nếu chỉ có 1 camera (sẽ dùng chung với face recognition)
+GESTURE_CAMERA_INDEX: str | int = CAMERA_INDEX if USE_WEBCAM else (f"http://{YANSHEE_IP}:{YANSHEE_STREAM_PORT}/stream.mjpg" if YANSHEE_CAMERA_ENABLED else CAMERA_INDEX)
 GESTURE_COOLDOWN_SEC: float = 3.0      # Thời gian phong ấn giữa 2 lệnh cử chỉ liên tiếp

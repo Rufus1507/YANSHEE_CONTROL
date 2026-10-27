@@ -8,6 +8,7 @@ from logs.logger import get_logger
 from events.event_bus import EventBus
 from config import (
     YANSHEE_CAMERA_ENABLED,
+    USE_WEBCAM,
     CAMERA_RECONNECT_DELAY,
     AUTO_RECONNECT,
     MAX_FRAME_QUEUE,
@@ -16,6 +17,7 @@ from config import (
 # Local imports of the abstraction
 from .camera_source import CameraSource
 from .yanshee_camera_source import YansheeCameraSource
+from .webcam_camera_source import WebcamCameraSource
 
 logger = get_logger(__name__)
 
@@ -110,12 +112,12 @@ class CameraManager:
         """
         self.running = True
         # Chọn nguồn camera
-        if YANSHEE_CAMERA_ENABLED:
-            self._source = YansheeCameraSource(self.bus)
+        if USE_WEBCAM or not YANSHEE_CAMERA_ENABLED:
+            logger.info("Khởi tạo WebcamCameraSource (Webcam cục bộ)")
+            self._source = WebcamCameraSource(self.bus)
         else:
-            raise NotImplementedError(
-                "Legacy webcam không còn hỗ trợ – bật YANSHEE_CAMERA_ENABLED trong config."
-            )
+            logger.info("Khởi tạo YansheeCameraSource (Camera đầu Robot)")
+            self._source = YansheeCameraSource(self.bus)
         self._source.start()
         logger.info("Camera source started.")
         # Bắt đầu task poll

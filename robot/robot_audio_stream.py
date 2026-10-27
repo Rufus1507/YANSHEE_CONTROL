@@ -23,7 +23,7 @@ from __future__ import annotations
 import threading
 import time
 from logs.logger import get_logger
-import configs as _cfg
+import config as _cfg
 
 logger = get_logger(__name__)
 

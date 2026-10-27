@@ -6,7 +6,7 @@ requests
 loguru
 sqlalchemy
 pyttsx3
-mediapipe
+mediapipe==0.10.14
 psutil
 # Feature 5: Voice Control
 SpeechRecognition
@@ -16,4 +16,4 @@ gTTS
 paramiko
 google-genai
 Pillow
-
+python-dotenv

@@ -91060,3 +91060,384 @@ AttributeError: module 'mediapipe' has no attribute 'solutions'
 2026-09-30 00:02:22.618 | INFO     | camera.yanshee_camera_source:_stream_loop:58 - Opening Yanshee MJPEG stream: http://10.165.178.75:8000/stream.mjpg
 2026-09-30 00:02:22.844 | INFO     | __main__:main:367 - System has fully stopped.
 2026-09-30 00:02:22.845 | INFO     | dashboard.app:ws_endpoint:173 - Client ngắt kết nối WebSocket
+2026-10-27 23:53:27.027 | INFO     | __main__:main:146 - Starting Yanshee AI — INTEGRATED SYSTEM (10+ Features)
+2026-10-27 23:53:27.069 | INFO     | database.db:init_db:34 - Database initialised at C:\Users\LENOVO\YANSHEE_CONTROL-main\data\yanshee_faceid.db
+2026-10-27 23:53:27.071 | ERROR    | __main__:<module>:377 - Unhandled system error: module 'mediapipe' has no attribute 'solutions'
+Traceback (most recent call last):
+
+> File "C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py", line 373, in <module>
+    asyncio.run(main())
+    │       │   └ <function main at 0x000001A135D325C0>
+    │       └ <function run at 0x000001A11987E7A0>
+    └ <module 'asyncio' from 'C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\asyncio\\__init__.py'>
+
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           │      │   └ <coroutine object main at 0x000001A135C559A0>
+           │      └ <function Runner.run at 0x000001A119D323E0>
+           └ <asyncio.runners.Runner object at 0x000001A1346FCF50>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │                        └ <Task finished name='Task-1' coro=<main() done, defined at C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py:145> exception=Attrib...
+           │    └ None
+           └ <asyncio.runners.Runner object at 0x000001A1346FCF50>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           │      └ <method 'result' of '_asyncio.Task' objects>
+           └ <Task finished name='Task-1' coro=<main() done, defined at C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py:145> exception=Attrib...
+
+  File "C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py", line 207, in main
+    face_detector    = FaceDetector()
+                       └ <class 'vision.face_detector.FaceDetector'>
+
+  File "C:\Users\LENOVO\YANSHEE_CONTROL-main\vision\face_detector.py", line 21, in __init__
+    self.detector = mp.solutions.face_detection.FaceDetection(
+    │               └ <module 'mediapipe' from 'C:\\Users\\LENOVO\\YANSHEE_CONTROL-main\\.venv\\Lib\\site-packages\\mediapipe\\__init__.py'>
+    └ <vision.face_detector.FaceDetector object at 0x000001A135DA4B90>
+
+AttributeError: module 'mediapipe' has no attribute 'solutions'
+2026-10-27 23:53:53.694 | INFO     | __main__:main:146 - Starting Yanshee AI — INTEGRATED SYSTEM (10+ Features)
+2026-10-27 23:53:53.710 | INFO     | database.db:init_db:34 - Database initialised at C:\Users\LENOVO\YANSHEE_CONTROL-main\data\yanshee_faceid.db
+2026-10-27 23:53:53.711 | ERROR    | __main__:<module>:377 - Unhandled system error: module 'mediapipe' has no attribute 'solutions'
+Traceback (most recent call last):
+
+> File "C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py", line 373, in <module>
+    asyncio.run(main())
+    │       │   └ <function main at 0x000001F8AB7B25C0>
+    │       └ <function run at 0x000001F88F2EE7A0>
+    └ <module 'asyncio' from 'C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\asyncio\\__init__.py'>
+
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           │      │   └ <coroutine object main at 0x000001F8AB6D59A0>
+           │      └ <function Runner.run at 0x000001F88F7A23E0>
+           └ <asyncio.runners.Runner object at 0x000001F8AA17A710>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │                        └ <Task finished name='Task-1' coro=<main() done, defined at C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py:145> exception=Attrib...
+           │    └ None
+           └ <asyncio.runners.Runner object at 0x000001F8AA17A710>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           │      └ <method 'result' of '_asyncio.Task' objects>
+           └ <Task finished name='Task-1' coro=<main() done, defined at C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py:145> exception=Attrib...
+
+  File "C:\Users\LENOVO\YANSHEE_CONTROL-main\main.py", line 207, in main
+    face_detector    = FaceDetector()
+                       └ <class 'vision.face_detector.FaceDetector'>
+
+  File "C:\Users\LENOVO\YANSHEE_CONTROL-main\vision\face_detector.py", line 21, in __init__
+    self.detector = mp.solutions.face_detection.FaceDetection(
+    │               └ <module 'mediapipe' from 'C:\\Users\\LENOVO\\YANSHEE_CONTROL-main\\.venv\\Lib\\site-packages\\mediapipe\\__init__.py'>
+    └ <vision.face_detector.FaceDetector object at 0x000001F8AB863950>
+
+AttributeError: module 'mediapipe' has no attribute 'solutions'
+2026-10-27 23:57:32.368 | INFO     | __main__:main:146 - Starting Yanshee AI — INTEGRATED SYSTEM (10+ Features)
+2026-10-27 23:57:32.384 | INFO     | database.db:init_db:34 - Database initialised at C:\Users\LENOVO\YANSHEE_CONTROL-main\data\yanshee_faceid.db
+2026-10-27 23:57:32.388 | INFO     | recognition.face_matcher:refresh_cache:62 - Embedding cache reloaded — 1 users, 24 vectors, 1 centroids computed
+2026-10-27 23:57:32.388 | INFO     | recognition.embedding_extractor:__init__:45 - Using Scale-Robust OpenCV Extractor v2 (Multi-Scale + HOG + LBP Hist) — 512 dims.
+2026-10-27 23:57:32.396 | INFO     | voice.robot_memory:_load:83 - Đã tải bộ nhớ robot từ: C:\Users\LENOVO\YANSHEE_CONTROL-main\data\robot_memory.json (30 hành động)
+2026-10-27 23:57:32.397 | INFO     | __main__:main:231 - Dashboard running at: http://127.0.0.1:8000
+2026-10-27 23:57:32.397 | INFO     | robot.action_queue:start:83 - [ACTION-QUEUE] ✅ Worker đã khởi động
+2026-10-27 23:57:32.397 | INFO     | robot.robot_action_engine:start:69 - [ACTION-ENGINE] ActionQueue đã khởi động
+2026-10-27 23:57:32.397 | INFO     | voice.voice_controller:start:61 - [VOICE] ✅ Luồng thu âm đã khởi động.
+2026-10-27 23:57:32.397 | DEBUG    | events.event_bus:emit:48 - Emit Event: VOICE_STATUS
+2026-10-27 23:57:32.398 | INFO     | __main__:main:243 - 🎤 Voice Controller đã khởi động trên thread riêng
+2026-10-27 23:57:32.398 | INFO     | __main__:main:251 - 📷 Chế độ mặc định: Nhận diện Khuôn mặt (Face)
+2026-10-27 23:57:32.594 | INFO     | robot.robot_connection:run:22 - Khởi động Robot Connection Manager (IP=10.36.31.75:9090)
+2026-10-27 23:57:32.595 | INFO     | utils.monitor:run:176 - SystemMonitor started — collecting every 3.0s (platform=Windows, cores=12)
+2026-10-27 23:57:32.611 | DEBUG    | events.event_bus:emit:48 - Emit Event: SYSTEM_METRICS
+2026-10-27 23:57:32.612 | DEBUG    | utils.monitor:run:190 - [SysMonitor] CPU=0.0% | RAM=63.1% | Process RSS=167.8MB | Uptime=0.0s
+2026-10-27 23:57:32.612 | INFO     | camera.camera_manager:run:116 - Khởi tạo WebcamCameraSource (Webcam cục bộ)
+2026-10-27 23:57:32.613 | INFO     | camera.webcam_camera_source:start:42 - WebcamCameraSource thread started (camera index=%s).
+2026-10-27 23:57:32.613 | INFO     | camera.camera_manager:run:122 - Camera source started.
+2026-10-27 23:57:32.683 | INFO     | voice.voice_controller:_listen_loop:105 - [VOICE] 🎤 Đang khử ồn môi trường (2 giây)...
+2026-10-27 23:57:32.806 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_CONNECTED
+2026-10-27 23:57:32.806 | INFO     | camera.webcam_camera_source:_capture_loop:59 - Webcam opened successfully.
+2026-10-27 23:57:33.121 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.135 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.148 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.172 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.219 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.251 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.283 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.314 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.348 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.379 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.412 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.444 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.476 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.524 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.556 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.588 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.619 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.651 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.683 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.714 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.747 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.795 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.810 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.827 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.858 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.939 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.952 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:33.970 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.003 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.036 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.084 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.114 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.146 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.195 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.209 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.227 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.260 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.341 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.354 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.370 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.402 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.451 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.483 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.516 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.547 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.582 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.613 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.660 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.674 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.722 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.755 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.788 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.819 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.851 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.882 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.915 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.962 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.976 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.994 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.028 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.060 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.122 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.156 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.186 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.236 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.249 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.266 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.301 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.332 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.365 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.397 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.428 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.460 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.538 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.552 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.571 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.608 | DEBUG    | events.event_bus:emit:48 - Emit Event: SYSTEM_METRICS
+2026-10-27 23:57:35.609 | DEBUG    | utils.monitor:run:190 - [SysMonitor] CPU=17.3% | RAM=64.0% | Process RSS=241.0MB | Uptime=3.0s
+2026-10-27 23:57:35.610 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.634 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.667 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.701 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.730 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.764 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.814 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.844 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.877 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.907 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.940 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:35.972 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.002 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.036 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.068 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.117 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.148 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.181 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.212 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.245 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.276 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.307 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.338 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.388 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.420 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.450 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.483 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.515 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.548 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.581 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.613 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.645 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.694 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.724 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.756 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.786 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.820 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.851 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.883 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.916 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.949 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:36.995 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.008 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.028 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.060 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.124 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.156 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.188 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.219 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.266 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.280 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.298 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.333 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.365 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.398 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.430 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.460 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.524 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.571 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.585 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.603 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.636 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.668 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.699 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.730 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.763 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.795 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.844 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.876 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.908 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.940 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:37.972 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.002 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.036 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.066 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.102 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.148 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:34.689 | INFO     | voice.voice_controller:_listen_loop:107 - [VOICE] 🎤 Sẵn sàng nhận lệnh giọng nói!
+2026-10-27 23:57:38.153 | DEBUG    | events.event_bus:emit:48 - Emit Event: VOICE_STATUS
+2026-10-27 23:57:38.153 | INFO     | __main__:main:343 - Shutting down system components...
+2026-10-27 23:57:38.153 | DEBUG    | events.event_bus:emit:48 - Emit Event: VOICE_STATUS
+2026-10-27 23:57:38.181 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.211 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.242 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.277 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.306 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.338 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.371 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.418 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.451 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.483 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.515 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.549 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.580 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.611 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.645 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.675 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.724 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.758 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.788 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.818 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.852 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.884 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.914 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.948 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:38.980 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.027 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.041 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.060 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.122 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.156 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.188 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.219 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.250 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.299 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.313 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.330 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.364 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.397 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.427 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.460 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.522 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.555 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.603 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.616 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.634 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.666 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.699 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.730 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.764 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.797 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.828 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.876 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.908 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.938 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:39.972 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.002 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.034 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.067 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.099 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.133 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.178 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.213 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.243 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.277 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.308 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.339 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.371 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.404 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.450 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.482 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.515 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.547 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.580 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.612 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.644 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.676 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.707 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.756 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.786 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.819 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.852 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.884 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.915 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.947 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:40.979 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.010 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.060 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.092 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.124 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.156 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.159 | INFO     | voice.voice_controller:stop:70 - [VOICE] ⏹️ Luồng thu âm đã dừng.
+2026-10-27 23:57:41.159 | DEBUG    | events.event_bus:emit:48 - Emit Event: VOICE_STATUS
+2026-10-27 23:57:41.159 | INFO     | __main__:main:355 - 🎤 Voice Controller đã dừng
+2026-10-27 23:57:41.160 | INFO     | robot.action_queue:stop:92 - [ACTION-QUEUE] ⏹️ Worker đã dừng
+2026-10-27 23:57:41.160 | INFO     | __main__:main:358 - 📋 ActionQueue đã dừng
+2026-10-27 23:57:41.161 | INFO     | robot.action_queue:_worker:198 - [ACTION-QUEUE] Worker loop ended.
+2026-10-27 23:57:41.187 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.219 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.251 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.282 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.331 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.346 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.362 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.396 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.427 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.460 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.523 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.556 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.588 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.636 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.648 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.666 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.699 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.730 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.765 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.797 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.829 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.860 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.907 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.939 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:41.971 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.004 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.034 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.066 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.098 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.131 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.162 | DEBUG    | events.event_bus:emit:48 - Emit Event: CAMERA_STATUS
+2026-10-27 23:57:42.162 | INFO     | __main__:main:368 - System has fully stopped.

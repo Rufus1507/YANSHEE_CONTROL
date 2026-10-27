@@ -5,7 +5,7 @@ import numpy as np
 from typing import Optional, Tuple
 
 from logs.logger import get_logger
-from configs import (
+from config import (
     CAMERA_INDEX,
     CAMERA_RECONNECT_DELAY,
     AUTO_RECONNECT,
