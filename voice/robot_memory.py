@@ -24,42 +24,199 @@ _DEFAULT_MEMORY_PATH = os.path.join(
 
 # Bộ nhớ gốc ban đầu — đầy đủ tất cả action của Yanshee
 _DEFAULT_MEMORY = {
-    # --- Di chuyển ---
-    "Forward": ["đi thẳng", "tiến lên", "đi tới"],
-    "Backward": ["đi lùi", "lùi lại"],
-    "TurnLeft": ["rẽ trái", "quay trái"],
-    "TurnRight": ["rẽ phải", "quay phải"],
-    "Stop": ["dừng lại", "đứng yên", "thôi", "dừng"],
-    "Reset": ["khởi động lại", "về vị trí cũ", "đứng nghiêm"],
-    # --- Bước đơn ---
-    "OneStepForward": ["tiến một bước", "bước lên"],
-    "OneStepBackward": ["lùi một bước", "bước lùi"],
-    "OneStepTurnLeft": ["xoay trái một bước"],
-    "OneStepTurnRight": ["xoay phải một bước"],
-    "OneStepMoveLeft": ["nhích sang trái", "bước sang trái"],
-    "OneStepMoveRight": ["nhích sang phải", "bước sang phải"],
-    "Move_fast": ["chạy nhanh", "tăng tốc"],
-    # --- Tương tác ---
-    "RaiseRightHand": ["giơ tay phải"],
-    "Wave": ["vẫy tay", "tạm biệt", "xin chào"],
-    "Hug": ["ôm cái nào", "ôm"],
-    "Victory": ["chiến thắng", "vô địch"],
-    # --- Trạng thái ---
-    "EnterEnergySavingSquat": ["tiết kiệm pin", "ngồi xổm xuống"],
-    "ExitEnergySavingReset": ["thoát tiết kiệm pin", "đứng dậy đi"],
-    # --- Giải trí ---
-    "WakaWaka": ["nhảy waka waka", "vũ điệu waka", "waka waka"],
-    "MerryChristmas": ["giáng sinh", "nhảy noel", "merry christmas"],
-    "HappyBirthday": ["sinh nhật", "chúc mừng sinh nhật"],
-    "SweetAndSour": ["nhảy chua ngọt"],
-    # --- Thể thao ---
-    "PushUp": ["hít đất", "chống đẩy"],
-    "Football_RKick": ["đá chân phải", "sút bằng chân phải"],
-    "Football_LKick": ["đá chân trái", "sút bằng chân trái"],
-    "LeftSidePunch": ["đấm bên trái"],
-    "RightSidePunch": ["đấm bên phải"],
-    "LeftHitForward": ["đấm thẳng tay trái"],
-    "RightHitForward": ["đấm thẳng tay phải"],
+
+    "RaiseRightHand": {
+        "giơ tay lên", "giơ tay", "tạm biệt"
+    },
+
+    "H_WaveRH": {
+        "vẫy tay", "wave", "tạm biệt", "bye", "goodbye"
+    },
+
+    "Hug": {
+        "ôm", "ôm đi"
+    },
+
+    # ================== DI CHUYỂN ==================
+    "Forward": {
+        "tiến", "tiến lên", "đi tới", "đi lên",
+        "forward", "go forward"
+    },
+
+    "Backward": {
+        "lùi", "đi lùi", "lùi lại",
+        "back", "go back"
+    },
+
+    "TurnLeft": {
+        "rẽ trái", "quay trái",
+        "left", "turn left"
+    },
+
+    "TurnRight": {
+        "rẽ phải", "quay phải",
+        "right", "turn right"
+    },
+
+    "OneStepForward": {
+        "bước tới", "bước lên"
+    },
+
+    "OneStepBackward": {
+        "bước lùi"
+    },
+
+    "OneStepTurnLeft": {
+        "xoay trái một bước"
+    },
+
+    "OneStepTurnRight": {
+        "xoay phải một bước"
+    },
+
+    "OneStepMoveLeft": {
+        "qua trái"
+    },
+
+    "OneStepMoveRight": {
+        "qua phải"
+    },
+
+    "Move_fast": {
+        "đi nhanh", "nhanh lên"
+    },
+
+    "Stop": {
+        "dừng", "dừng lại", "stop", "đứng yên"
+    },
+
+    "Reset": {
+        "reset", "đứng thẳng"
+    },
+
+    # ================== NĂNG LƯỢNG ==================
+    "EnterEnergySavingSquat": {
+        "ngồi", "ngồi xuống", "ngồi nghỉ"
+    },
+
+    "ExitEnergySavingReset": {
+        "đứng lên", "đứng dậy"
+    },
+
+    # ================== ÂM THANH ==================
+    "WakaWaka": {
+        "nhảy", "nhảy waka", "waka", "nhảy đi", "nhảy lên"
+    },
+    "MerryChristmas": {
+        "giáng sinh", "giáng sinh vui vẻ", "merry christmas"
+    },
+    "HappyBirthday": {
+        "sinh nhật", "chúc mừng sinh nhật", "happy birthday"
+    },
+    "WeAreTakingOff": {
+        "cất cánh", "cất cánh thôi", "cất cánh đi", "cất cánh lên","We Are Taking Off"
+    },
+
+    "Victory": {
+        "xin chào", "ăn mừng", "chào","hi","hello","hey","hey robot"
+    },
+    "GetupFront": {
+        "ngã sấp đứng dậy", "ngã sấp đứng lên", "ngã sấp đứng dậy đi", "ngã sấp đứng dậy lên"
+    },
+    "GetupRear": {
+        "ngã ngửa đứng dậy", "ngã ngửa đứng lên", "ngã ngửa đứng dậy đi", "ngã ngửa đứng dậy lên"
+    },
+    "PushUp": {
+        "hít đất", "hít đất đi", "hít đất lên", "hít đất đi lên","chống đẩy","chống đẩy đi","chống đẩy lên","chống đẩy đi lên"
+    },
+    "GetUp": {
+        "Tập thể dục", "tập thể dục đi", "tập thể dục lên", "tập thể dục đi lên"
+    },
+
+    # ================== BÓNG ĐÁ (THỂ THAO) ==================
+    "Football_LKick": {
+        "sút trái", "đá trái", "sút chân trái", "đá chân trái"
+    },
+    "Football_RKick": {
+        "sút phải", "đá phải", "sút chân phải", "đá chân phải"
+    },
+    "Football_LShoot": {
+        "dứt điểm trái", "sút mạnh trái", "sút bóng trái","sút banh trái","sút banh"
+    },
+    "Football_RShoot": {
+        "dứt điểm phải", "sút mạnh phải", "sút bóng phải", "sút bóng", "đá bóng","đá banh","sút banh phải"
+    },
+    "GoalKeeper1": {
+        "bắt bóng", "thủ môn bắt bóng", "bảo vệ khung thành","bắt banh"
+    },
+    "GoalKeeper2": {
+        "bắt bóng trên", "chuẩn bị bắt bóng", "thủ môn","bắt banh trên"
+    },
+    "Football_LKeep": {
+        "bắt bóng trái", "đổ người bên trái", "đổ người trái","bắt banh trái"
+    },
+    "Football_RKeep": {
+        "bắt bóng phải", "đổ người bên phải", "đổ người phải","bắt banh phải"
+    },
+    "LeftTackle": {
+        "xoạc bóng trái", "cướp bóng trái","xoạc banh trái"
+    },
+    "RightTackle": {
+        "xoạc bóng phải", "cướp bóng phải", "xoạc bóng","xoạc banh phải"
+    },
+    "Left slide tackle": {
+        "chồi bóng trái", "trượt bóng trái","xoạc banh trái"
+    },
+
+    # ================== CHIẾN ĐẤU (FIGHT) ==================
+    "LeftSidePunch": {
+        "đấm ngang trái", "đánh ngang trái", "đấm tay trái", "đánh tay trái"
+    },
+    "RightSidePunch": {
+        "đấm ngang phải", "đánh ngang phải", "đấm tay phải", "đánh tay phải"
+    },
+    "Fight_LHit": {
+        "đấm thẳng trái", "đánh thẳng trái", "tấn công trái"
+    },
+    "Fight_RHit": {
+        "đấm thẳng phải", "đánh thẳng phải", "tấn công phải", "đấm thẳng", "tấn công"
+    },
+    "Fight_LSideHit": {
+        "đòn sườn trái", "đánh sườn trái", "móc trái"
+    },
+    "Fight_RSideHit": {
+        "đòn sườn phải", "đánh sườn phải", "móc phải", "đòn sườn"
+    },
+    "LeftHitForward": {
+        "gạt đòn trái", "đỡ đòn trái", "chặn đòn trái"
+    },
+    "RightHitForward": {
+        "gạt đòn phải", "đỡ đòn phải", "chặn đòn", "gạt đòn"
+    },
+
+    "PlayMusic": {
+        "phát nhạc", "bật nhạc", "mở nhạc", "play music"
+    },
+
+    "StopMusic": {
+        "tắt nhạc", "dừng nhạc", "stop music"
+    },
+
+    "VolumeUp": {
+        "tăng âm lượng", "to lên", "lớn lên"
+    },
+
+    "VolumeDown": {
+        "giảm âm lượng", "nhỏ lại"
+    },
+
+    "Mute": {
+        "tắt âm thanh", "im lặng", "mute","tắt tiếng","tắt tiếng đi","tắt tiếng lên","tắt tiếng đi lên"
+    },
+
+    "Unmute": {
+        "bật âm thanh", "mở tiếng"
+    },
 }
 
 

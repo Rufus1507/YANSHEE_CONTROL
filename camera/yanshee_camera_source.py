@@ -46,8 +46,15 @@ class YansheeCameraSource(CameraSource):
 
     def stop(self) -> None:
         self.running = False
-        if self._thread:
-            self._thread.join(timeout=2)
+        if hasattr(self, "_current_resp") and self._current_resp:
+            try:
+                self._current_resp.close()
+            except Exception:
+                pass
+            self._current_resp = None
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=2.0)
+            self._thread = None
         self.bus.emit("CAMERA_STOPPED", {})
         logger.info("YansheeCameraSource stopped.")
 
@@ -56,7 +63,8 @@ class YansheeCameraSource(CameraSource):
         while self.running:
             try:
                 logger.info("Opening Yanshee MJPEG stream: {}", url)
-                resp = requests.get(url, stream=True, timeout=YANSHEE_STREAM_TIMEOUT)
+                self._current_resp = requests.get(url, stream=True, timeout=YANSHEE_STREAM_TIMEOUT)
+                resp = self._current_resp
                 if resp.status_code != 200:
                     raise RuntimeError(f"Bad HTTP status {resp.status_code}")
                 self.bus.emit("CAMERA_CONNECTED", {})
@@ -81,11 +89,16 @@ class YansheeCameraSource(CameraSource):
                             self._latency = (time.time() - ts) * 1000.0  # ms
                         self.bus.emit("CAMERA_STATUS", {"status": "online"})
             except Exception as exc:
+                if not self.running:
+                    break
                 logger.error("Yanshee stream error: {}", exc)
                 self.bus.emit("CAMERA_ERROR", {"error": str(exc)})
-                if AUTO_RECONNECT:
+                if AUTO_RECONNECT and self.running:
                     self.bus.emit("CAMERA_RECONNECTING", {})
-                    time.sleep(CAMERA_RECONNECT_DELAY)
+                    for _ in range(int(CAMERA_RECONNECT_DELAY * 10)):
+                        if not self.running:
+                            break
+                        time.sleep(0.1)
                 else:
                     break
         self.bus.emit("CAMERA_DISCONNECTED", {})

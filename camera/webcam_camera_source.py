@@ -43,16 +43,30 @@ class WebcamCameraSource(CameraSource):
 
     def stop(self) -> None:
         self.running = False
-        if self._thread:
-            self._thread.join(timeout=1.5)
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=2.5)
+            self._thread = None
+        if self._cap:
+            try:
+                self._cap.release()
+            except Exception:
+                pass
+            self._cap = None
         self.bus.emit("CAMERA_STOPPED", {})
         logger.info("WebcamCameraSource stopped.")
 
     def _capture_loop(self) -> None:
+        import platform
         while self.running:
             try:
                 if self._cap is None:
-                    self._cap = cv2.VideoCapture(CAMERA_INDEX)
+                    if platform.system() == "Windows" and isinstance(CAMERA_INDEX, int):
+                        self._cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_DSHOW)
+                        if not self._cap.isOpened():
+                            self._cap = cv2.VideoCapture(CAMERA_INDEX)
+                    else:
+                        self._cap = cv2.VideoCapture(CAMERA_INDEX)
+
                     if not self._cap.isOpened():
                         raise RuntimeError(f"Cannot open webcam at index {CAMERA_INDEX}")
                     self.bus.emit("CAMERA_CONNECTED", {})
@@ -75,18 +89,29 @@ class WebcamCameraSource(CameraSource):
                 self.bus.emit("CAMERA_STATUS", {"status": "online"})
                 time.sleep(0.01)
             except Exception as exc:
-                logger.error("Webcam source error: %s", exc)
+                if not self.running:
+                    break
+                logger.error(f"Webcam source error: {exc}")
                 self.bus.emit("CAMERA_ERROR", {"error": str(exc)})
                 if self._cap:
-                    self._cap.release()
+                    try:
+                        self._cap.release()
+                    except Exception:
+                        pass
                     self._cap = None
-                if AUTO_RECONNECT:
+                if AUTO_RECONNECT and self.running:
                     self.bus.emit("CAMERA_RECONNECTING", {})
-                    time.sleep(CAMERA_RECONNECT_DELAY)
+                    for _ in range(int(CAMERA_RECONNECT_DELAY * 10)):
+                        if not self.running:
+                            break
+                        time.sleep(0.1)
                 else:
                     break
         if self._cap:
-            self._cap.release()
+            try:
+                self._cap.release()
+            except Exception:
+                pass
             self._cap = None
         self.bus.emit("CAMERA_DISCONNECTED", {})
 

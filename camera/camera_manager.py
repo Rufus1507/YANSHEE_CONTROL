@@ -54,44 +54,48 @@ class CameraManager:
         lưu JPEG cho dashboard, và emit FRAME_READY cho pipeline.
         Chỉ emit khi có frame MỚI (timestamp thay đổi)."""
         _last_ts: float = 0.0
-        while self.running:
-            if self._source is None:
-                await asyncio.sleep(0.1)
-                continue
+        try:
+            while self.running:
+                if self._source is None:
+                    await asyncio.sleep(0.1)
+                    continue
 
-            data = self._source.read()
-            if data is None:
-                # Không có frame – có thể đang reconnect
-                await asyncio.sleep(0.05)
-                continue
+                data = self._source.read()
+                if data is None:
+                    # Không có frame – có thể đang reconnect
+                    await asyncio.sleep(0.05)
+                    continue
 
-            jpeg, ts = data
+                jpeg, ts = data
 
-            # Bỏ qua nếu frame chưa đổi (tránh emit lặp cùng 1 frame)
-            if ts == _last_ts:
-                await asyncio.sleep(0.01)
-                continue
-            _last_ts = ts
+                # Bỏ qua nếu frame chưa đổi (tránh emit lặp cùng 1 frame)
+                if ts == _last_ts:
+                    await asyncio.sleep(0.01)
+                    continue
+                _last_ts = ts
 
-            # Cập nhật metric
-            self.fps = self._source.get_fps()
-            self.latency = self._source.get_latency()
+                # Cập nhật metric
+                if self._source:
+                    self.fps = self._source.get_fps()
+                    self.latency = self._source.get_latency()
 
-            # Lưu JPEG cho dashboard
-            self._latest_jpeg = jpeg
+                # Lưu JPEG cho dashboard
+                self._latest_jpeg = jpeg
 
-            # Decode JPEG → numpy frame cho pipeline
-            frame = self._decode_jpeg(jpeg)
-            if frame is None:
-                await asyncio.sleep(0.01)
-                continue
+                # Decode JPEG → numpy frame cho pipeline
+                frame = self._decode_jpeg(jpeg)
+                if frame is None:
+                    await asyncio.sleep(0.01)
+                    continue
 
-            # Emit FRAME_READY kèm cả frame numpy (cho pipeline)
-            # và fps (cho dashboard metrics)
-            self.bus.emit("FRAME_READY", {"frame": frame, "fps": self.fps})
+                # Emit FRAME_READY kèm cả frame numpy (cho pipeline)
+                # và fps (cho dashboard metrics)
+                self.bus.emit("FRAME_READY", {"frame": frame, "fps": self.fps})
 
-            # Nhường event loop để dashboard/websocket có thể xử lý
-            await asyncio.sleep(0)
+                # Nhường event loop để dashboard/websocket có thể xử lý
+                await asyncio.sleep(0)
+        except asyncio.CancelledError:
+            pass
 
     @staticmethod
     def _decode_jpeg(jpeg_bytes: bytes) -> Optional[np.ndarray]:
@@ -120,15 +124,25 @@ class CameraManager:
             self._source = YansheeCameraSource(self.bus)
         self._source.start()
         logger.info("Camera source started.")
-        # Bắt đầu task poll
         poll_task = asyncio.create_task(self._poll_source())
-        while self.running:
-            await asyncio.sleep(1.0)
-        # Dừng nguồn và task
-        if self._source:
-            self._source.stop()
-        poll_task.cancel()
-        logger.info("CameraManager stopped.")
+        try:
+            while self.running:
+                await asyncio.sleep(0.5)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            self.running = False
+            # Dừng nguồn và task
+            if self._source:
+                self._source.stop()
+                self._source = None
+            if poll_task and not poll_task.done():
+                poll_task.cancel()
+                try:
+                    await poll_task
+                except asyncio.CancelledError:
+                    pass
+            logger.info("CameraManager stopped.")
 
     # ---------------------------------------------------------------------
     # Các hàm được dashboard / pipeline gọi
@@ -140,3 +154,6 @@ class CameraManager:
     def stop(self) -> None:
         """Dừng vòng lặp và đóng nguồn camera."""
         self.running = False
+        if self._source:
+            self._source.stop()
+            self._source = None

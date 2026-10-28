@@ -141,11 +141,12 @@ class GestureBridge:
 
         logger.info(f"[GESTURE] Camera index = {self._camera_index}")
 
-        # Gọi đúng signature: start_cam_control(cmd_queue=None)
-        start_cam_control(cmd_queue=self._adapter)
+        # Gọi start_cam_control kèm camera_index
+        start_cam_control(cmd_queue=self._adapter, camera_index=self._camera_index)
 
         self._running = False
         logger.info("[GESTURE] Vòng lặp gesture đã kết thúc.")
+        self._bus.emit("GESTURE_STATUS", {"status": "stopped"})
 
     def set_voice_busy(self, busy: bool):
         """Cho cam_control biết voice đang độc chiếm để tự nhường lệnh."""

@@ -115,6 +115,8 @@ class RobotActionEngine:
         """
         motion = payload.get("motion", "")
         raw_text = payload.get("raw_text", "")
+        source = payload.get("source", "voice")
+        reply = payload.get("reply", "")
 
         if not motion:
             return
@@ -126,29 +128,30 @@ class RobotActionEngine:
             })
             return
 
-        logger.info(f"[VOICE] → Enqueue motion: {motion} (từ '{raw_text}')")
+        logger.info(f"[VOICE] → Enqueue motion: {motion} (từ '{raw_text}', nguồn={source})")
 
         # Tạo action cho voice command (priority cao hơn greeting)
         action = RobotAction(
             priority=ActionPriority.VOICE,
             name=f"voice:{motion}",
-            coro_factory=lambda m=motion, t=raw_text: self._execute_voice_motion(m, t),
-            metadata={"motion": motion, "raw_text": raw_text, "source": "voice"},
+            coro_factory=lambda m=motion, t=raw_text, s=source, r=reply: self._execute_voice_motion(m, t, s, r),
+            metadata={"motion": motion, "raw_text": raw_text, "source": source},
             timeout=20.0,
             cancellable=False,  # Voice command không bị hủy bởi greeting
         )
         self.action_queue.enqueue(action)
 
-    async def _execute_voice_motion(self, motion: str, raw_text: str):
+    async def _execute_voice_motion(self, motion: str, raw_text: str, source: str = "voice", reply: str = ""):
         """Thực thi hành động robot từ lệnh giọng nói."""
         self.set_state("EXECUTING_VOICE")
-        self.bus.emit("VOICE_EXECUTING", {"motion": motion, "raw_text": raw_text})
+        self.bus.emit("VOICE_EXECUTING", {"motion": motion, "raw_text": raw_text, "source": source})
 
-        # Phản hồi TTS (nói lại lệnh)
-        confirm_text = f"Đang thực hiện {raw_text}"
-        tts_success = await asyncio.to_thread(self.robot_conn.send_tts, confirm_text)
-        if not tts_success:
-            await asyncio.to_thread(self.local_tts.say, confirm_text)
+        # Phản hồi TTS (nếu nguồn từ gemini_ai thì đã được AI phản hồi trước đó)
+        if source != "gemini_ai":
+            confirm_text = f"Đang thực hiện {raw_text}"
+            tts_success = await asyncio.to_thread(self.robot_conn.send_tts, confirm_text)
+            if not tts_success:
+                await asyncio.to_thread(self.local_tts.say, confirm_text)
 
         # Thực thi motion
         motion_success = await asyncio.to_thread(self.robot_conn.send_motion, motion)

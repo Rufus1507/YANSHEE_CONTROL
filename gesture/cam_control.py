@@ -184,7 +184,7 @@ def put_text_vi(img, text, position, font_size=20, color=(255, 255, 255)):
 # MAIN LOOP ĐƯỢC CHẠY TỪ LUỒNG MAIN_CONTROL
 # ==========================================
 
-def start_cam_control(cmd_queue=None):
+def start_cam_control(cmd_queue=None, camera_index=0):
     global command_queue
     global is_system_locked, unlock_timestamp, palm_pause_timestamp, palm_counter
     global last_action, last_send_time, pose_gesture_counter, confirmed_action, prev_wrist_pos, palm_start_timestamp
@@ -196,7 +196,25 @@ def start_cam_control(cmd_queue=None):
     mp_pose = mp.solutions.pose
     mp_drawing = mp.solutions.drawing_utils
 
-    cap = cv2.VideoCapture(0)
+    import platform
+    cap = None
+    for attempt in range(5):
+        if getattr(command_queue, "shutdown_requested", False):
+            return
+        if platform.system() == "Windows" and isinstance(camera_index, int):
+            cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+            if not cap.isOpened():
+                cap = cv2.VideoCapture(camera_index)
+        else:
+            cap = cv2.VideoCapture(camera_index)
+
+        if cap.isOpened():
+            break
+        time.sleep(0.4)
+
+    if cap is None or not cap.isOpened():
+        print(f"\n[LỖI] Không thể mở Camera (index={camera_index}) cho Gesture Control.")
+        return
 
     print("=" * 60)
     print(" CHIẾN THẦN CAMERA YANSHEE (INTEGRATED)  |  Nhấn ESC để thoát ")
@@ -215,9 +233,17 @@ def start_cam_control(cmd_queue=None):
     print(" - BỎ TAY XUỐNG    -> Yanshee Reset đứng im")
     print("=" * 60)
 
+    fail_count = 0
     while cap.isOpened() and not getattr(command_queue, "shutdown_requested", False):
         success, image = cap.read()
-        if not success: break
+        if not success:
+            fail_count += 1
+            if fail_count > 30:
+                print("\n[LỖI] Không thể đọc khung hình từ Camera Gesture.")
+                break
+            time.sleep(0.03)
+            continue
+        fail_count = 0
 
         image = cv2.flip(image, 1)
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -475,9 +501,15 @@ def start_cam_control(cmd_queue=None):
             command_queue.put((0, next(_qc), "cam", "exit", {}))
             break
 
-    cap.release()
+    if cap:
+        try:
+            cap.release()
+        except Exception:
+            pass
     cv2.destroyAllWindows()
-    print("\n[Hệ thống] Đã tắt Camera và đóng ứng dụng.")
+    for _ in range(5):
+        cv2.waitKey(1)
+    print("\n[Hệ thống] Đã tắt Camera và dừng Gesture Control.")
 
 if __name__ == "__main__":
     start_cam_control()

@@ -62,6 +62,7 @@ from dashboard.app import start_dashboard_server
 from utils.monitor import SystemMonitor
 from voice.robot_memory import RobotMemory
 from voice.voice_controller import VoiceController
+from voice.gemini_ai_controller import GeminiAIController
 from gesture.gesture_bridge import GestureBridge
 
 # ── Voice: dùng trực tiếp từ config.py (VOICE_ENABLED, VOICE_MIC_INDEX) ───
@@ -83,15 +84,17 @@ def print_db_warning():
 
 def print_cli_menu(current_mode: str):
     """In menu CLI — gọi lại mỗi khi chuyển chế độ."""
-    print("\n" + "─"*60)
+    print("\n" + "─"*65)
     print("  🎮  BẢNG ĐIỀU KHIỂN YANSHEE AI  (gõ lệnh + Enter)")
-    print("─"*60)
+    print("─"*65)
     marker_face    = "▶ ĐANG CHẠY" if current_mode == "face"    else "  chờ      "
     marker_gesture = "▶ ĐANG CHẠY" if current_mode == "gesture" else "  chờ      "
-    print(f"  [1 / face   ]  {marker_face}   — Nhận diện Khuôn mặt")
-    print(f"  [2 / gesture]  {marker_gesture}   — Nhận diện Cử chỉ tay")
+    marker_ai      = "▶ ĐANG CHẠY" if current_mode == "ai"      else "  chờ      "
+    print(f"  [1 / face   ]  {marker_face}   — Nhận diện Khuôn mặt (FaceID)")
+    print(f"  [2 / gesture]  {marker_gesture}   — Nhận diện Cử chỉ tay (Gesture)")
+    print(f"  [3 / ai     ]  {marker_ai}   — Gemini AI Trò chuyện & Điều khiển Tự nhiên")
     print(f"  [quit / exit]               — Dừng toàn bộ hệ thống")
-    print("─"*60)
+    print("─"*65)
     print(">> ", end="", flush=True)
 
 
@@ -154,7 +157,7 @@ async def main():
     print("\n" + "="*60)
     print("  🤖 YANSHEE AI — HỆ THỐNG TỔNG HỢP 10+ TÍNH NĂNG")
     print("="*60)
-    print(f"\n[STARTUP CHECK]")
+    print(f"\n[STARTUP] DB: {users_count} users, {embeddings_count} embeddings, Model: {FACE_MODEL_NAME}")
     print(f"  Database path     : {DATABASE_PATH}")
     print(f"  Registered users  : {users_count}")
     print(f"  Face embeddings   : {embeddings_count}")
@@ -185,12 +188,13 @@ async def main():
     print(f"  ✅  8. Dashboard Web")
     print(f"  ✅  9. System Monitor")
     print(f"  ✅ 10. Hạ tầng (EventBus, DB, Logger)")
-    print(f"  🔄 11. Gesture — chuyển đổi on-the-fly qua CLI")
+    print(f"  🔄 11. Gesture — chuyển đổi on-the-fly qua CLI (Chế độ 2)")
+    print(f"  🧠 12. Gemini AI — Trò chuyện & Nhận diện ý định tự nhiên (Chế độ 3)")
 
     print(f"\n[CHALLENGES SOLVED]")
-    print(f"  ✅ #1 Anti-Blocking : Voice chạy trên thread riêng")
-    print(f"  ✅ #2 Anti-Conflict : ActionQueue có priority (Voice > Greeting)")
-    print(f"  ✅ #3 Resource Mgmt : Camera được nhả trước khi chuyển chế độ")
+    print(f"  ✅ #1 Anti-Blocking : Voice & AI chạy trên thread riêng")
+    print(f"  ✅ #2 Anti-Conflict : ActionQueue có priority (Voice/AI > Greeting)")
+    print(f"  ✅ #3 Resource Mgmt : Camera & Mic được nhả sạch trước khi chuyển chế độ")
 
     print(f"\nOK - Starting main system...\n")
 
@@ -218,7 +222,7 @@ async def main():
     print(f"[MEMORY] Loaded: {mem_stats['total_motions']} motions, "
           f"{mem_stats['total_keywords']} keywords")
 
-    # ── Feature 5: Voice Controller (luôn chạy, không phụ thuộc chế độ)
+    # ── Feature 5: Voice Controller (chế độ thường) ────────────────
     voice_controller = None
     if VOICE_ENABLED:
         voice_controller = VoiceController(
@@ -243,10 +247,11 @@ async def main():
         logger.info("🎤 Voice Controller đã khởi động trên thread riêng")
 
     # ── Trạng thái chế độ hiện tại ───────────────────────────────────
-    # Mặc định: bắt đầu bằng chế độ FACE
-    current_mode:  str                        = "face"
-    camera_task:   asyncio.Task | None        = asyncio.create_task(camera.run())
-    gesture_bridge: GestureBridge | None      = None
+    # Mặc định: bắt đầu bằng chế độ FACE (1)
+    current_mode:   str                        = "face"
+    camera_task:    asyncio.Task | None        = asyncio.create_task(camera.run())
+    gesture_bridge: GestureBridge | None       = None
+    ai_controller:  GeminiAIController | None  = None
 
     logger.info("📷 Chế độ mặc định: Nhận diện Khuôn mặt (Face)")
 
@@ -277,28 +282,28 @@ async def main():
                 shutdown_event.set()
                 break
 
-            # ── Chuyển sang chế độ FACE ──────────────────────────────
-            elif cmd in ("1", "face") and current_mode != "face":
-                print("\n[CLI] ⏳ Đang chuyển sang chế độ Nhận diện Khuôn mặt...")
+            # ── Chuyển sang chế độ FACE (1) ──────────────────────────
+            elif cmd in ("1", "face"):
+                if current_mode == "face" and camera_task and not camera_task.done():
+                    print(f"[CLI] ℹ️  Đang ở chế độ 'face' rồi, không cần chuyển.")
+                    print(">> ", end="", flush=True)
+                    continue
 
-                # 1. Dừng Gesture (nhả camera gesture)
+                print("\n[CLI] ⏳ Đang chuyển sang Chế độ 1: Nhận diện Khuôn mặt...")
+
+                # 1. Dừng Gesture nếu đang chạy
                 if gesture_bridge:
                     gesture_bridge.stop()
                     gesture_bridge = None
-                    await asyncio.sleep(1)   # đợi camera nhả resource
+                    await asyncio.sleep(0.5)
 
-                # 2. Khởi động Face camera
-                camera_task = asyncio.create_task(camera.run())
-                current_mode = "face"
-                logger.info("📷 Đã chuyển sang chế độ: Nhận diện Khuôn mặt")
-                print("[CLI] ✅ Đã bật Nhận diện Khuôn mặt!")
-                print_cli_menu(current_mode)
+                # 2. Dừng Gemini AI nếu đang chạy
+                if ai_controller:
+                    ai_controller.stop()
+                    ai_controller = None
+                    await asyncio.sleep(0.5)
 
-            # ── Chuyển sang chế độ GESTURE ───────────────────────────
-            elif cmd in ("2", "gesture") and current_mode != "gesture":
-                print("\n[CLI] ⏳ Đang chuyển sang chế độ Nhận diện Cử chỉ...")
-
-                # 1. Dừng Face camera (nhả resource camera 0)
+                # 3. Đảm bảo face camera cũ dừng hẳn nếu còn
                 if camera_task and not camera_task.done():
                     camera.stop()
                     camera_task.cancel()
@@ -307,9 +312,54 @@ async def main():
                     except asyncio.CancelledError:
                         pass
                     camera_task = None
-                    await asyncio.sleep(1)   # đợi camera nhả resource
+                    await asyncio.sleep(0.5)
 
-                # 2. Khởi động Gesture bridge
+                # 4. Bật lại voice controller thường nếu có
+                if voice_controller and not voice_controller.is_running:
+                    voice_controller.start()
+
+                # 5. Khởi động Face camera
+                camera_task = asyncio.create_task(camera.run())
+                current_mode = "face"
+                logger.info("📷 Đã chuyển sang chế độ: Nhận diện Khuôn mặt (FaceID)")
+                print("[CLI] ✅ Đã bật Nhận diện Khuôn mặt!")
+                print_cli_menu(current_mode)
+
+            # ── Chuyển sang chế độ GESTURE (2) ───────────────────────
+            elif cmd in ("2", "gesture"):
+                if current_mode == "gesture" and gesture_bridge and gesture_bridge.is_running:
+                    print(f"[CLI] ℹ️  Đang ở chế độ 'gesture' rồi, không cần chuyển.")
+                    print(">> ", end="", flush=True)
+                    continue
+
+                print("\n[CLI] ⏳ Đang chuyển sang Chế độ 2: Nhận diện Cử chỉ...")
+
+                # 1. Dừng Face camera (nhả resource camera)
+                if camera_task and not camera_task.done():
+                    camera.stop()
+                    camera_task.cancel()
+                    try:
+                        await camera_task
+                    except asyncio.CancelledError:
+                        pass
+                    camera_task = None
+                else:
+                    camera.stop()
+
+                # 2. Dừng Gemini AI nếu đang chạy
+                if ai_controller:
+                    ai_controller.stop()
+                    ai_controller = None
+
+                await asyncio.sleep(0.8)   # đợi camera nhả resource
+
+                # 3. Đảm bảo gesture bridge cũ dừng hẳn nếu còn
+                if gesture_bridge:
+                    gesture_bridge.stop()
+                    gesture_bridge = None
+                    await asyncio.sleep(0.5)
+
+                # 4. Khởi động Gesture bridge
                 gesture_bridge = GestureBridge(
                     event_bus=event_bus,
                     action_queue=robot_action.action_queue,
@@ -321,18 +371,67 @@ async def main():
                 print("[CLI] ✅ Đã bật Nhận diện Cử chỉ! (Cửa sổ camera sẽ mở ra)")
                 print_cli_menu(current_mode)
 
-            # ── Lệnh không hợp lệ ────────────────────────────────────
-            elif cmd in ("1", "face") or cmd in ("2", "gesture"):
-                print(f"[CLI] ℹ️  Đang ở chế độ '{current_mode}' rồi, không cần chuyển.")
-                print(">> ", end="", flush=True)
+            # ── Chuyển sang chế độ GEMINI AI (3) ─────────────────────
+            elif cmd in ("3", "ai", "chat", "gemini"):
+                if current_mode == "ai" and ai_controller and ai_controller.is_running:
+                    print(f"[CLI] ℹ️  Đang ở chế độ 'ai' rồi, không cần chuyển.")
+                    print(">> ", end="", flush=True)
+                    continue
 
+                print("\n[CLI] ⏳ Đang chuyển sang Chế độ 3: Gemini AI Trò chuyện & Điều khiển...")
+
+                # 1. Dừng Face camera (nhả camera và CPU)
+                if camera_task and not camera_task.done():
+                    camera.stop()
+                    camera_task.cancel()
+                    try:
+                        await camera_task
+                    except asyncio.CancelledError:
+                        pass
+                    camera_task = None
+                else:
+                    camera.stop()
+
+                # 2. Dừng Gesture camera nếu đang chạy
+                if gesture_bridge:
+                    gesture_bridge.stop()
+                    gesture_bridge = None
+
+                # 3. Dừng Voice thường để Gemini AI độc chiếm Micro
+                if voice_controller and voice_controller.is_running:
+                    voice_controller.stop()
+
+                await asyncio.sleep(0.5)
+
+                # 4. Khởi động Gemini AI Controller
+                if not ai_controller or not ai_controller.is_running:
+                    ai_controller = GeminiAIController(
+                        event_bus=event_bus,
+                        robot_memory=robot_memory,
+                        mic_index=VOICE_MIC_INDEX,
+                    )
+                    ai_controller.start()
+
+                current_mode = "ai"
+                logger.info("🧠 Đã chuyển sang Chế độ 3: Gemini AI Trò chuyện & Điều khiển Tự nhiên")
+                print("\n" + "="*65)
+                print(" 🤖 ĐÃ BẬT CHẾ ĐỘ 3: GEMINI AI TRÒ CHUYỆN & ĐIỀU KHIỂN TỰ NHIÊN!")
+                print("="*65)
+                print(" 👉 HƯỚNG DẪN NÓI VỚI YANSHEE AI (Hãy nói vào Micro laptop):")
+                print("  - Giao tiếp / Hỏi đáp : 'Bạn là ai?', 'Hôm nay thế nào?', 'Kể chuyện cười'")
+                print("  - Lệnh tự nhiên       : 'Chào bạn', 'Vui mừng lên', 'Bước tới một bước', 'Sút bóng', 'Ôm mình đi', 'Đứng nghiêm'")
+                print("  => Robot sẽ tự suy nghĩ, trả lời bằng giọng nói và cử động tương ứng!")
+                print("="*65)
+                print_cli_menu(current_mode)
+
+            # ── Lệnh không hợp lệ ────────────────────────────────────
             elif cmd == "":
                 # Enter trống — chỉ hiện lại dấu nhắc
                 print(">> ", end="", flush=True)
 
             else:
                 print(f"[CLI] ❓ Lệnh không nhận ra: '{cmd}'")
-                print("      Gõ  1/face  |  2/gesture  |  quit")
+                print("      Gõ  1/face  |  2/gesture  |  3/ai  |  quit")
                 print(">> ", end="", flush=True)
 
     except asyncio.CancelledError:
@@ -341,14 +440,29 @@ async def main():
     finally:
         # ── GRACEFUL SHUTDOWN ─────────────────────────────────────────
         logger.info("Shutting down system components...")
+        shutdown_event.set()
+
+        if ai_controller:
+            ai_controller.stop()
+            ai_controller = None
+            logger.info("🧠 Gemini AI Controller đã dừng")
 
         if gesture_bridge:
             gesture_bridge.stop()
+            gesture_bridge = None
             logger.info("🖐️  Gesture Controller đã dừng")
 
         if camera_task and not camera_task.done():
             camera.stop()
             camera_task.cancel()
+            try:
+                await camera_task
+            except asyncio.CancelledError:
+                pass
+            camera_task = None
+        else:
+            camera.stop()
+        logger.info("📷 Camera Manager đã dừng")
 
         if voice_controller:
             voice_controller.stop()
@@ -359,12 +473,15 @@ async def main():
 
         robot_conn.stop()
 
-        dashboard_task.cancel()
-        robot_conn_task.cancel()
-        monitor_task.cancel()
-        watchdog_task.cancel()
+        for task in (dashboard_task, robot_conn_task, monitor_task, watchdog_task):
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         logger.info("System has fully stopped.")
 
 

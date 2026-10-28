@@ -93,8 +93,8 @@ class VietnameseTTS:
                          f"Chạy: pip install gTTS paramiko")
             return False
         except Exception as e:
-            logger.error(f"[TTS-VN] Lỗi TTS: {e}")
-            return False
+            logger.warning(f"[TTS-VN] Không thể phát qua loa Robot ({e}) -> Chuyển sang loa máy tính")
+            return self.speak_local(text)
         finally:
             # Dọn file tạm
             if tmp_path and os.path.exists(tmp_path):
@@ -105,23 +105,52 @@ class VietnameseTTS:
 
     def speak_local(self, text: str) -> bool:
         """
-        Fallback: Phát TTS trên máy tính local (không qua robot).
+        Fallback: Phát TTS trên máy tính local (qua pygame hoặc playsound).
         Dùng khi robot offline.
         """
+        if not text or not text.strip():
+            return False
+
+        tmp_path = None
         try:
             from gtts import gTTS
-            import playsound
+            import time
 
             fd, tmp_path = tempfile.mkstemp(suffix=".mp3", prefix="local_tts_")
             os.close(fd)
             tts = gTTS(text=text, lang='vi', slow=False)
             tts.save(tmp_path)
-            playsound.playsound(tmp_path)
-            os.unlink(tmp_path)
-            return True
-        except ImportError:
-            logger.warning("[TTS-VN] Không có playsound, bỏ qua local TTS")
+
+            # Ưu tiên pygame mixer
+            try:
+                import pygame
+                if not pygame.mixer.get_init():
+                    pygame.mixer.init()
+                pygame.mixer.music.load(tmp_path)
+                pygame.mixer.music.play()
+                while pygame.mixer.music.get_busy():
+                    time.sleep(0.05)
+                pygame.mixer.music.unload()
+                logger.info(f"[TTS-VN] Loa PC đã phát: '{text[:50]}...'")
+                return True
+            except Exception as pg_err:
+                logger.debug(f"[TTS-VN] pygame playback error: {pg_err}")
+
+            # Fallback playsound
+            try:
+                import playsound
+                playsound.playsound(tmp_path)
+                return True
+            except Exception:
+                pass
+
             return False
         except Exception as e:
             logger.error(f"[TTS-VN] Lỗi local TTS: {e}")
             return False
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
