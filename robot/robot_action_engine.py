@@ -242,19 +242,25 @@ class RobotActionEngine:
         self.action_queue.enqueue(action)
 
     async def _execute_vn_tts(self, text: str):
-        """Phát TTS tiếng Việt qua robot hoặc local."""
+        """Phát TTS tiếng Việt qua robot hoặc loa máy tính."""
         self.set_state("SPEAKING_VN")
         self.bus.emit("TTS_STARTED", {"text": text})
 
+        success = False
         vn_tts = self._get_vn_tts()
-        if vn_tts and self.robot_conn.connected:
-            success = await asyncio.to_thread(vn_tts.speak, text)
-        else:
-            # Fallback: dùng robot TTS tiếng Anh hoặc local
-            success = await asyncio.to_thread(self.robot_conn.send_tts, text)
+        if vn_tts:
+            if self.robot_conn and getattr(self.robot_conn, "connected", False):
+                success = await asyncio.to_thread(vn_tts.speak, text)
+            else:
+                # Robot không kết nối -> phát trực tiếp qua loa PC bằng gTTS + pygame
+                success = await asyncio.to_thread(vn_tts.speak_local, text)
+
+        if not success:
+            # Fallback: dùng robot TTS nếu kết nối hoặc local audio
+            if self.robot_conn and getattr(self.robot_conn, "connected", False):
+                success = await asyncio.to_thread(self.robot_conn.send_tts, text)
             if not success:
-                await asyncio.to_thread(self.local_tts.say, text)
-                success = True
+                success = await asyncio.to_thread(self.local_tts.say, text)
 
         self.bus.emit("TTS_FINISHED", {"text": text, "success": success})
         self.set_state("READY")

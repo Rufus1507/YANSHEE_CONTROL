@@ -184,7 +184,7 @@ def put_text_vi(img, text, position, font_size=20, color=(255, 255, 255)):
 # MAIN LOOP ĐƯỢC CHẠY TỪ LUỒNG MAIN_CONTROL
 # ==========================================
 
-def start_cam_control(cmd_queue=None, camera_index=0):
+def start_cam_control(cmd_queue=None, camera_index=0, frame_callback=None, show_window=False):
     global command_queue
     global is_system_locked, unlock_timestamp, palm_pause_timestamp, palm_counter
     global last_action, last_send_time, pose_gesture_counter, confirmed_action, prev_wrist_pos, palm_start_timestamp
@@ -494,21 +494,35 @@ def start_cam_control(cmd_queue=None, camera_index=0):
                 image = put_text_vi(image, f"PHONG ẤN LỆNH... {int(time_left)}s", (w - 380, 100), font_size=16, color=(0, 0, 255))
 
         image = put_text_vi(image, "GIAO TIẾP QUA: QUEUE_MAIN_CONTROL", (10, h - 30), font_size=16, color=(50, 255, 50))
-        cv2.imshow("Yanshee Gesture AI  |  ESC = Thoat", image)
-        
-        if cv2.waitKey(5) & 0xFF == 27:
-            command_queue.shutdown_requested = True
-            command_queue.put((0, next(_qc), "cam", "exit", {}))
-            break
+
+        # Stream frame trực tiếp vào cùng khung Dashboard Web
+        if frame_callback is not None:
+            try:
+                success, jpeg_buf = cv2.imencode('.jpg', image, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
+                if success:
+                    frame_callback(jpeg_buf.tobytes(), fps)
+            except Exception:
+                pass
+
+        if show_window:
+            cv2.imshow("Yanshee Gesture AI  |  ESC = Thoat", image)
+            if cv2.waitKey(5) & 0xFF == 27:
+                if command_queue:
+                    command_queue.shutdown_requested = True
+                    command_queue.put((0, next(_qc), "cam", "exit", {}))
+                break
+        else:
+            time.sleep(0.005)
 
     if cap:
         try:
             cap.release()
         except Exception:
             pass
-    cv2.destroyAllWindows()
-    for _ in range(5):
-        cv2.waitKey(1)
+    if show_window:
+        cv2.destroyAllWindows()
+        for _ in range(5):
+            cv2.waitKey(1)
     print("\n[Hệ thống] Đã tắt Camera và dừng Gesture Control.")
 
 if __name__ == "__main__":

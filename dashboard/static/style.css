@@ -123,7 +123,7 @@ body {
     grid-template-rows: minmax(0, 1.8fr) minmax(0, 1fr);
     gap: 16px;
     padding: 16px;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 118px);
     overflow: hidden;
 }
 
@@ -188,6 +188,8 @@ body {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: contain; /* Don't crop if ratio differs */
+}
+#video-feed.mirror {
     transform: scaleX(-1);
 }
 #vision-overlay {
@@ -406,3 +408,289 @@ body {
 .log-time { color: var(--text-muted); font-family: var(--font-mono); }
 .log-cat { display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
 .log-msg { color: var(--text-main); }
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE CONTROL BAR & OPERATIONAL DASHBOARD EXTENSIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+.mode-control-bar {
+    height: 54px;
+    background: #090e1a;
+    border-bottom: 1px solid var(--panel-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.mode-btn {
+    background: #0d1629;
+    border: 1px solid var(--panel-border);
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.mode-btn:hover:not(:disabled) {
+    background: #15223d;
+    color: var(--text-main);
+    border-color: var(--accent-blue);
+}
+
+.mode-btn.active {
+    background: rgba(0, 176, 255, 0.15);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    box-shadow: 0 0 10px rgba(0, 176, 255, 0.25);
+}
+
+.mode-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mode-status-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.ms-label {
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+}
+
+.ms-val {
+    color: var(--accent-green);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.ms-spinner {
+    color: var(--accent-orange);
+    font-family: var(--font-mono);
+    animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+}
+
+.mode-bar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.shutdown-btn {
+    background: rgba(255, 51, 51, 0.15);
+    border: 1px solid var(--accent-red);
+    color: var(--accent-red);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.shutdown-btn:hover {
+    background: var(--accent-red);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(255, 51, 51, 0.4);
+}
+
+/* ─── Sub-section Title ─── */
+.sub-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ─── Cyber Form Elements ─── */
+.cyber-input {
+    background: #090e1a;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    padding: 7px 10px;
+    flex: 1;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.cyber-input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 6px rgba(0, 176, 255, 0.2);
+}
+
+.cyber-select {
+    background: #090e1a;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    padding: 7px 8px;
+    outline: none;
+}
+
+.cyber-btn {
+    background: #132446;
+    border: 1px solid #1c3664;
+    color: var(--accent-blue);
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 7px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.cyber-btn:hover {
+    background: var(--accent-blue);
+    color: #000;
+}
+
+.cyber-btn.btn-green {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(0, 230, 118, 0.1);
+}
+
+.cyber-btn.btn-green:hover {
+    background: var(--accent-green);
+    color: #000;
+}
+
+.cyber-btn-sm {
+    background: #0b101c;
+    border: 1px solid var(--panel-border);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cyber-btn-sm:hover {
+    background: #131c31;
+    color: var(--text-main);
+}
+
+.btn-voice-toggle {
+    background: rgba(0, 176, 255, 0.1);
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-voice-toggle:hover {
+    background: var(--accent-blue);
+    color: #000;
+}
+
+/* ─── TTS & Memory Containers ─── */
+.tts-container {
+    padding: 12px 16px;
+    border-top: 1px solid var(--panel-border);
+}
+
+.tts-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.memory-container {
+    padding: 12px 16px;
+    border-top: 1px solid var(--panel-border);
+}
+
+.memory-input-row {
+    display: flex;
+    gap: 6px;
+}
+
+/* ─── Robot Direct Motion Pad ─── */
+.robot-controls-pad {
+    padding: 12px 16px;
+}
+
+.robot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.robot-btn {
+    background: #090e1a;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-main);
+}
+
+.robot-btn:hover {
+    background: #10192e;
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+}
+
+.robot-btn:active {
+    transform: translateY(1px);
+}
+
+.robot-btn.btn-danger {
+    border-color: rgba(255, 51, 51, 0.5);
+    color: var(--accent-red);
+}
+
+.robot-btn.btn-danger:hover {
+    background: rgba(255, 51, 51, 0.2);
+    border-color: var(--accent-red);
+}
+
+.rb-icon { font-size: 1.1rem; }
+.rb-label { font-size: 0.72rem; font-weight: 600; font-family: var(--font-mono); }

@@ -1,48 +1,61 @@
 """
 Text-to-Speech engine.
-Uses pyttsx3 (offline, works on Windows).
+Uses Windows SAPI / pyttsx3 safely across threads.
 Falls back gracefully if TTS is unavailable.
 """
+import sys
+import threading
 from logs.logger import get_logger
 
 logger = get_logger(__name__)
 
-_engine = None
-
-
-def _get_engine():
-    global _engine
-    if _engine is not None:
-        return _engine
-    try:
-        import pyttsx3
-        _engine = pyttsx3.init()
-        # Try to pick an English voice if available
-        for voice in _engine.getProperty("voices"):
-            if "en" in voice.id.lower() or "english" in voice.name.lower():
-                _engine.setProperty("voice", voice.id)
-                break
-        _engine.setProperty("rate", 160)
-        return _engine
-    except Exception:
-        logger.exception("Không thể khởi tạo pyttsx3")
-        return None
+_speech_lock = threading.Lock()
 
 
 class SpeechEngine:
-    """Abstraction for TTS. Can be swapped for Yanshee TTS or file-based audio."""
+    """Thread-safe abstraction for local TTS on Windows / Linux."""
 
     def say(self, text: str) -> bool:
-        """Speak *text* using the local TTS engine. Returns True on success."""
-        engine = _get_engine()
-        if engine is None:
-            logger.warning("TTS không khả dụng – bỏ qua: %s", text)
+        """Speak *text* using local TTS. Returns True on success."""
+        if not text or not str(text).strip():
             return False
-        try:
-            engine.say(text)
-            engine.runAndWait()
-            logger.info("Đã nói: {}", text)
-            return True
-        except Exception:
-            logger.exception("TTS lỗi khi nói: {}", text)
-            return False
+
+        with _speech_lock:
+            # 1. On Windows, try SAPI directly with CoInitialize
+            if sys.platform == "win32":
+                try:
+                    import pythoncom
+                    import win32com.client
+                    pythoncom.CoInitialize()
+                    try:
+                        speaker = win32com.client.Dispatch("SAPI.SpVoice")
+                        # 0 = SVSFDefault (synchronous)
+                        speaker.Speak(str(text), 0)
+                        logger.info("SpeechEngine (SAPI) đã nói: %s", text)
+                        return True
+                    finally:
+                        pythoncom.CoUninitialize()
+                except Exception as sapi_err:
+                    logger.debug("SAPI TTS error: %s, trying pyttsx3 fallback", sapi_err)
+
+            # 2. Secondary fallback: pyttsx3 with fresh instance
+            try:
+                import pyttsx3
+                engine = pyttsx3.init()
+                # Try to pick an English voice if available
+                try:
+                    for voice in engine.getProperty("voices"):
+                        if "en" in voice.id.lower() or "english" in voice.name.lower():
+                            engine.setProperty("voice", voice.id)
+                            break
+                    engine.setProperty("rate", 160)
+                except Exception:
+                    pass
+                engine.say(str(text))
+                engine.runAndWait()
+                engine.stop()
+                logger.info("SpeechEngine (pyttsx3) đã nói: %s", text)
+                return True
+            except Exception as p_err:
+                logger.warning("Local TTS error: %s", p_err)
+                return False

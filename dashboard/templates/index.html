@@ -6,7 +6,7 @@
     <title>Yanshee AI — Intelligent Robot Control System</title>
     <meta name="description" content="Yanshee AI Robot Control Dashboard">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=6">
+    <link rel="stylesheet" href="/static/style.css?v=10">
 </head>
 <body>
 
@@ -15,13 +15,13 @@
         <div class="header-left">
             <div class="logo-block">
                 <h1 class="logo-title">🤖 YANSHEE AI</h1>
-                <span class="logo-subtitle">AI · VISION · VOICE · ROBOTICS</span>
+                <span class="logo-subtitle">AI · VISION · VOICE · ROBOTICS · CONTROL CENTER</span>
             </div>
         </div>
 
         <div class="header-right">
-            <div class="sys-ready">
-                <span class="icon">✅</span> SYSTEM READY
+            <div class="sys-ready" id="sys-status-badge">
+                <span class="icon">✅</span> SYSTEM LIVE
             </div>
             <div class="status-group">
                 <div class="status-item">
@@ -35,7 +35,7 @@
                     <span class="status-dot on" id="light-api"></span>
                     <div class="status-text-block">
                         <span class="status-label">API</span>
-                        <span class="status-val">Live</span>
+                        <span class="status-val" id="api-text">Live</span>
                     </div>
                 </div>
                 <div class="status-item">
@@ -56,6 +56,36 @@
         </div>
     </header>
 
+    <!-- Mode Control Bar -->
+    <div class="mode-control-bar">
+        <div class="mode-buttons">
+            <button class="mode-btn active" id="btn-face" onclick="switchMode('face')">
+                <span class="mode-icon">📷</span>
+                <span class="mode-label">Face Recognition (1)</span>
+            </button>
+            <button class="mode-btn" id="btn-gesture" onclick="switchMode('gesture')">
+                <span class="mode-icon">🖐️</span>
+                <span class="mode-label">Gesture Control (2)</span>
+            </button>
+            <button class="mode-btn" id="btn-ai" onclick="switchMode('ai')">
+                <span class="mode-icon">🧠</span>
+                <span class="mode-label">Gemini AI (3)</span>
+            </button>
+        </div>
+
+        <div class="mode-status-info">
+            <span class="ms-label">Chế độ vận hành:</span>
+            <span class="ms-val" id="mode-current-text">FACE RECOGNITION</span>
+            <span class="ms-spinner" id="mode-spinner" style="display:none;">⏳ Đang chuyển...</span>
+        </div>
+
+        <div class="mode-bar-actions">
+            <button class="shutdown-btn" id="btn-shutdown" onclick="confirmShutdown()">
+                <span class="mode-icon">⏻</span> DỪNG HỆ THỐNG
+            </button>
+        </div>
+    </div>
+
     <!-- Main Layout -->
     <div class="layout-container">
         
@@ -63,17 +93,17 @@
         <div class="panel camera-zone">
             <div class="panel-header glass-header">
                 <div class="ph-left">
-                    <span class="live-indicator"></span> CAMERA <span class="text-green">LIVE</span>
+                    <span class="live-indicator"></span> CAMERA <span class="text-green" id="cam-live-indicator">LIVE</span>
                 </div>
                 <div class="ph-right text-mono text-muted">
                     <span><span class="icon">📺</span> 640 × 480</span>
                     <span><span class="icon">⏱</span> <span id="cam-fps-top">--</span> FPS</span>
-                    <span><span class="icon">👤</span> Face Detection: ON</span>
-                    <span><span class="icon">🧬</span> Liveness: ON</span>
+                    <span id="cam-mode-badge"><span class="icon">👤</span> Face: ON</span>
+                    <span id="cam-sub-badge"><span class="icon">🧬</span> Liveness: ON</span>
                 </div>
             </div>
             <div class="video-container">
-                <img id="video-feed" src="/video_feed" alt="Live Feed" />
+                <img id="video-feed" class="mirror" src="/video_feed" alt="Live Feed" />
                 <canvas id="vision-overlay"></canvas>
             </div>
             <div class="fps-overlay">FPS: <span id="fps-val">--</span> (<span class="text-green">Live</span>)</div>
@@ -126,28 +156,28 @@
                         <span class="lm-icon">📶</span>
                         <div class="lm-info">
                             <span class="lm-label">LATENCY</span>
-                            <span class="lm-val">42 ms</span>
+                            <span class="lm-val" id="sys-latency">-- ms</span>
                         </div>
                     </div>
                     <div class="lm-box">
                         <span class="lm-icon">🤖</span>
                         <div class="lm-info">
-                            <span class="lm-label">ROBOT</span>
-                            <span class="lm-val">12 ms</span>
+                            <span class="lm-label">ROBOT STATUS</span>
+                            <span class="lm-val" id="sys-robot-state">Offline</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Middle Column: Current User, Liveness, Voice -->
+        <!-- Middle Column: Current User, Liveness, Voice & TTS, Memory -->
         <div class="zone-col col-mid">
             
             <!-- Current User -->
             <div class="panel module">
                 <div class="panel-header">
                     <h2 class="module-title"><span class="icon">👤</span> NGƯỜI DÙNG HIỆN TẠI</h2>
-                    <span class="link-text">Xem chi tiết →</span>
+                    <span class="link-text">FaceID Matcher</span>
                 </div>
                 <div class="user-card">
                     <div class="user-profile">
@@ -200,11 +230,11 @@
                 <div class="liveness-steps" id="liveness-steps" style="display:none;"></div>
             </div>
 
-            <!-- Voice Control -->
+            <!-- Voice Control & TTS & Smart Memory -->
             <div class="panel module">
                 <div class="panel-header">
-                    <h2 class="module-title"><span class="icon">🎙️</span> ĐIỀU KHIỂN GIỌNG NÓI</h2>
-                    <div class="badge badge-outline badge-green" id="voice-top-badge">Đang chờ...</div>
+                    <h2 class="module-title"><span class="icon">🎙️</span> ĐIỀU KHIỂN GIỌNG NÓI & TTS</h2>
+                    <button class="btn-voice-toggle" id="btn-voice-toggle" onclick="toggleVoice()">Bật/Tắt Mic</button>
                 </div>
                 <div class="voice-card">
                     <div class="voice-wave-box">
@@ -212,24 +242,54 @@
                     </div>
                     <div class="voice-details">
                         <div class="vd-row">
-                            <span class="vd-label">Lệnh cuối:</span>
+                            <span class="vd-label">Lệnh nghe:</span>
                             <span class="vd-val" id="voice-last-text">"--"</span>
                         </div>
                         <div class="vd-row">
-                            <span class="vd-label">Nhận diện:</span>
+                            <span class="vd-label">Ánh xạ motion:</span>
                             <span class="vd-val text-bold" id="voice-last-cmd">--</span>
                         </div>
                         <div class="vd-row">
                             <span class="vd-label">Trạng thái:</span>
-                            <span class="vd-val text-blue" id="voice-status-text">Đang chờ nghe lệnh...</span>
+                            <span class="vd-val text-blue" id="voice-status-text">Đang khởi tạo...</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- TTS Input Box -->
+                <div class="tts-container">
+                    <div class="sub-section-title">🔊 Phát âm Tiếng Việt (TTS)</div>
+                    <div class="tts-input-row">
+                        <input type="text" id="tts-input" class="cyber-input" placeholder="Nhập câu tiếng Việt để robot nói..." onkeydown="if(event.key==='Enter') sendTTS()" />
+                        <button id="tts-send-btn" class="cyber-btn" onclick="sendTTS()">Phát loa</button>
+                    </div>
+                </div>
+
+                <!-- Smart Memory Quick Learn -->
+                <div class="memory-container">
+                    <div class="sub-section-title">🧠 Dạy Từ Khóa Mới Cho Robot</div>
+                    <div class="memory-input-row">
+                        <select id="memory-motion-select" class="cyber-select">
+                            <option value="Forward">Tiến lên (Forward)</option>
+                            <option value="Backward">Lùi lại (Backward)</option>
+                            <option value="TurnLeft">Rẽ trái (TurnLeft)</option>
+                            <option value="TurnRight">Rẽ phải (TurnRight)</option>
+                            <option value="RaiseRightHand">Giơ tay (RaiseRightHand)</option>
+                            <option value="H_WaveRH">Vẫy tay (H_WaveRH)</option>
+                            <option value="Hug">Ôm (Hug)</option>
+                            <option value="Football_RKick">Sút bóng phải (Football_RKick)</option>
+                            <option value="Football_LKick">Sút bóng trái (Football_LKick)</option>
+                            <option value="Reset">Đứng nghiêm (Reset)</option>
+                        </select>
+                        <input type="text" id="memory-keyword-input" class="cyber-input" placeholder="Từ khóa mới..." onkeydown="if(event.key==='Enter') learnKeyword()" />
+                        <button class="cyber-btn btn-green" onclick="learnKeyword()">Học từ</button>
                     </div>
                 </div>
             </div>
             
         </div>
 
-        <!-- Right Column: Motion Progress, Action Queue -->
+        <!-- Right Column: Motion Progress, Action Queue, Robot Controls -->
         <div class="zone-col col-right">
             
             <!-- Motion Progress -->
@@ -262,14 +322,52 @@
             </div>
 
             <!-- Action Queue -->
-            <div class="panel module flex-1">
+            <div class="panel module">
                 <div class="panel-header">
                     <h2 class="module-title"><span class="icon">📋</span> ACTION QUEUE</h2>
-                    <span class="link-text">Xem tất cả (<span id="aq-size-top">0</span>)</span>
+                    <span class="link-text">Hàng đợi (<span id="aq-size-top">0</span>)</span>
                 </div>
                 <div class="aq-list" id="aq-list">
-                    <!-- Dynamic Items Here -->
                     <div class="aq-placeholder">Hàng đợi trống</div>
+                </div>
+            </div>
+
+            <!-- Robot Direct Motion Controls -->
+            <div class="panel module flex-1">
+                <div class="panel-header">
+                    <h2 class="module-title"><span class="icon">🎮</span> ĐIỀU KHIỂN ROBOT</h2>
+                    <span class="badge badge-outline" id="robot-direct-badge">READY</span>
+                </div>
+                <div class="robot-controls-pad">
+                    <div class="robot-grid">
+                        <button class="robot-btn" onclick="sendRobotMotion('Forward')">
+                            <span class="rb-icon">⬆️</span><span class="rb-label">Tiến</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('Backward')">
+                            <span class="rb-icon">⬇️</span><span class="rb-label">Lùi</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('TurnLeft')">
+                            <span class="rb-icon">⬅️</span><span class="rb-label">Trái</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('TurnRight')">
+                            <span class="rb-icon">➡️</span><span class="rb-label">Phải</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('RaiseRightHand')">
+                            <span class="rb-icon">🙋</span><span class="rb-label">Chào</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('H_WaveRH')">
+                            <span class="rb-icon">👋</span><span class="rb-label">Vẫy tay</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('Hug')">
+                            <span class="rb-icon">🫂</span><span class="rb-label">Ôm</span>
+                        </button>
+                        <button class="robot-btn" onclick="sendRobotMotion('Football_RKick')">
+                            <span class="rb-icon">⚽</span><span class="rb-label">Sút bóng</span>
+                        </button>
+                        <button class="robot-btn btn-danger" onclick="sendRobotMotion('Reset')">
+                            <span class="rb-icon">🛑</span><span class="rb-label">Reset</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -278,7 +376,10 @@
         <!-- Event Log Zone -->
         <div class="panel log-zone">
             <div class="panel-header">
-                <h2 class="module-title"><span class="icon">📑</span> NHẬT KÝ SỰ KIỆN</h2>
+                <h2 class="module-title"><span class="icon">📑</span> NHẬT KÝ SỰ KIỆN THỜI GIAN THỰC</h2>
+                <div class="log-actions">
+                    <button class="cyber-btn-sm" onclick="clearLogs()">Xóa log</button>
+                </div>
             </div>
             <div class="log-stream-wrapper">
                 <div class="log-stream-timeline" id="log-stream">
@@ -289,6 +390,6 @@
 
     </div>
 
-    <script src="/static/app.js?v=6"></script>
+    <script src="/static/app.js?v=10"></script>
 </body>
 </html>

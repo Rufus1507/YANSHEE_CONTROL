@@ -82,7 +82,7 @@ BLINK_REQUIRED_COUNT: int = 1
 
 # Robot settings
 ROBOT_ENABLED: bool = True
-ROBOT_IP: str = "10.36.31.75" 
+ROBOT_IP: str = "10.183.9.75" 
 ROBOT_PORT: int = 9090
 ROBOT_TIMEOUT: int = 3  # seconds
 AUTO_RECONNECT: bool = True

@@ -14,11 +14,14 @@ GIẢI QUYẾT THÁCH THỨC #3 (Tài nguyên):
 - File MP3 tạm được dọn dẹp sau khi phát xong.
 """
 import os
+import threading
 import tempfile
 from logs.logger import get_logger
 from config import YANSHEE_IP
 
 logger = get_logger(__name__)
+
+_tts_lock = threading.Lock()
 
 # SSH credentials cho Yanshee (Raspberry Pi bên trong)
 _ROBOT_SSH_USER = "pi"
@@ -105,52 +108,62 @@ class VietnameseTTS:
 
     def speak_local(self, text: str) -> bool:
         """
-        Fallback: Phát TTS trên máy tính local (qua pygame hoặc playsound).
-        Dùng khi robot offline.
+        Fallback: Phát TTS trên máy tính local (qua pygame mixer hoặc local SpeechEngine).
+        Dùng khi robot offline. Đảm bảo gọi được liên tục nhiều lần không kẹt luồng.
         """
         if not text or not text.strip():
             return False
 
-        tmp_path = None
-        try:
-            from gtts import gTTS
-            import time
-
-            fd, tmp_path = tempfile.mkstemp(suffix=".mp3", prefix="local_tts_")
-            os.close(fd)
-            tts = gTTS(text=text, lang='vi', slow=False)
-            tts.save(tmp_path)
-
-            # Ưu tiên pygame mixer
+        with _tts_lock:
+            tmp_path = None
             try:
-                import pygame
-                if not pygame.mixer.get_init():
-                    pygame.mixer.init()
-                pygame.mixer.music.load(tmp_path)
-                pygame.mixer.music.play()
-                while pygame.mixer.music.get_busy():
-                    time.sleep(0.05)
-                pygame.mixer.music.unload()
-                logger.info(f"[TTS-VN] Loa PC đã phát: '{text[:50]}...'")
-                return True
-            except Exception as pg_err:
-                logger.debug(f"[TTS-VN] pygame playback error: {pg_err}")
+                from gtts import gTTS
+                import time
 
-            # Fallback playsound
-            try:
-                import playsound
-                playsound.playsound(tmp_path)
-                return True
-            except Exception:
-                pass
+                fd, tmp_path = tempfile.mkstemp(suffix=".mp3", prefix="local_tts_")
+                os.close(fd)
+                tts = gTTS(text=text, lang='vi', slow=False)
+                tts.save(tmp_path)
 
-            return False
-        except Exception as e:
-            logger.error(f"[TTS-VN] Lỗi local TTS: {e}")
-            return False
-        finally:
-            if tmp_path and os.path.exists(tmp_path):
+                # Ưu tiên pygame mixer
                 try:
-                    os.unlink(tmp_path)
-                except OSError:
+                    import pygame
+                    if not pygame.mixer.get_init():
+                        pygame.mixer.init()
+                    pygame.mixer.music.load(tmp_path)
+                    pygame.mixer.music.play()
+                    while pygame.mixer.music.get_busy():
+                        time.sleep(0.05)
+                    try:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.unload()
+                    except Exception:
+                        pass
+                    logger.info(f"[TTS-VN] Loa PC đã phát: '{text[:50]}...'")
+                    return True
+                except Exception as pg_err:
+                    logger.debug(f"[TTS-VN] pygame playback error: {pg_err}")
+
+                # Fallback playsound
+                try:
+                    import playsound
+                    playsound.playsound(tmp_path)
+                    return True
+                except Exception:
                     pass
+
+            except Exception as e:
+                logger.warning(f"[TTS-VN] Lỗi gTTS/loa ({e}), chuyển sang local SpeechEngine...")
+                try:
+                    from robot.speech_engine import SpeechEngine
+                    return SpeechEngine().say(text)
+                except Exception as se_err:
+                    logger.error(f"[TTS-VN] Local speech engine failed: {se_err}")
+                    return False
+            finally:
+                if tmp_path and os.path.exists(tmp_path):
+                    try:
+                        os.unlink(tmp_path)
+                    except OSError:
+                        pass
+            return False

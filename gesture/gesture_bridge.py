@@ -71,10 +71,12 @@ class GestureBridge:
         bridge.stop()      # Dừng
     """
 
-    def __init__(self, event_bus, action_queue=None, camera_index=1):
+    def __init__(self, event_bus, action_queue=None, camera_index=1, camera_manager=None, show_window=False):
         self._bus = event_bus
         self._action_queue = action_queue
         self._camera_index = camera_index
+        self._camera_manager = camera_manager
+        self._show_window = show_window
         self._adapter = _GestureQueueAdapter(event_bus, action_queue)
         self._gesture_thread: threading.Thread | None = None
         self._dispatch_thread: threading.Thread | None = None
@@ -141,8 +143,17 @@ class GestureBridge:
 
         logger.info(f"[GESTURE] Camera index = {self._camera_index}")
 
-        # Gọi start_cam_control kèm camera_index
-        start_cam_control(cmd_queue=self._adapter, camera_index=self._camera_index)
+        def _on_frame(jpeg_bytes: bytes, current_fps: float):
+            if self._camera_manager:
+                self._camera_manager.set_external_jpeg(jpeg_bytes, current_fps)
+
+        # Gọi start_cam_control kèm frame_callback và show_window
+        start_cam_control(
+            cmd_queue=self._adapter,
+            camera_index=self._camera_index,
+            frame_callback=_on_frame if self._camera_manager else None,
+            show_window=self._show_window,
+        )
 
         self._running = False
         logger.info("[GESTURE] Vòng lặp gesture đã kết thúc.")

@@ -151,6 +151,12 @@ class CameraManager:
         """Lấy JPEG mới nhất (sync, dùng cho dashboard /video_feed)."""
         return self._latest_jpeg
 
+    def set_external_jpeg(self, jpeg: bytes, fps: float = 0.0) -> None:
+        """Cập nhật JPEG từ module bên ngoài (ví dụ Gesture Control) và thông báo cho Dashboard."""
+        self._latest_jpeg = jpeg
+        self.fps = fps
+        self.bus.emit("FRAME_READY", {"fps": fps, "source": "gesture"})
+
     def stop(self) -> None:
         """Dừng vòng lặp và đóng nguồn camera."""
         self.running = False

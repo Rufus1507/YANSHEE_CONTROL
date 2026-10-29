@@ -69,7 +69,7 @@ class WebcamCameraSource(CameraSource):
 
                     if not self._cap.isOpened():
                         raise RuntimeError(f"Cannot open webcam at index {CAMERA_INDEX}")
-                    self.bus.emit("CAMERA_CONNECTED", {})
+                    self.bus.emit("CAMERA_CONNECTED", {}); self.bus.emit("CAMERA_STATUS", {"status": "online"})
                     logger.info("Webcam opened successfully.")
                 ret, frame = self._cap.read()
                 if not ret:
@@ -86,7 +86,7 @@ class WebcamCameraSource(CameraSource):
                         self._fps = 1.0 / max(ts - self._last_frame_ts, 0.001)
                     self._last_frame_ts = ts
                     self._latency = (time.time() - ts) * 1000.0
-                self.bus.emit("CAMERA_STATUS", {"status": "online"})
+                # Per-frame CAMERA_STATUS removed to avoid flooding
                 time.sleep(0.01)
             except Exception as exc:
                 if not self.running:

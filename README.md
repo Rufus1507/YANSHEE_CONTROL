@@ -22,6 +22,9 @@ Hệ thống biến Robot Yanshee thành **Trợ lý Robot Thông minh**, tích 
    - Lắng nghe liên tục trên luồng riêng (`threading.Thread`), tự động khử ồn môi trường và nhận diện qua Google Speech Recognition.
    - Hoàn toàn không gây đơ/lag khung hình camera.
 6. **Bộ nhớ Thông minh (Smart Memory - `RobotMemory`)**:
+   - Quản lý từ khóa lệnh tiếng Việt và ánh xạ tới 30+ động tác cử chỉ của robot.
+   - Dữ liệu được lưu trong file [`data/robot_memory.json`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/data/robot_memory.json) với cấu trúc JSON: mỗi motion là khóa, giá trị là mảng các từ khóa.
+   - Thư viện thực hiện tải và tra cứu nằm ở `voice/robot_memory.py`. Để xem chi tiết và hướng dẫn cập nhật, tham khảo tài liệu [Robot Memory Documentation](file:///C:/Users/LENOVO/.gemini/antigravity/brain/432fabeb-a34f-427b-92af-10b79d0e0481/robot_memory_documentation.md).
    - Quản lý từ khóa lệnh tiếng Việt và ánh xạ tới 30+ động tác cử chỉ của robot qua file [`data/robot_memory.json`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/data/robot_memory.json).
 7. **Phát âm Tiếng Việt (Vietnamese TTS & Audio Routing)**:
    - Tạo âm thanh tiếng Việt bằng `gTTS`.
@@ -210,40 +213,42 @@ python -m recognition.register_user --name "Nguyen Van A" --role Student
 
 ### 3. Khởi chạy Hệ thống Chính (`main.py`)
 
-Chạy lệnh:
+Chạy lệnh duy nhất trong terminal:
 ```cmd
 python main.py
 ```
 
-Khi hệ thống khởi động thành công, Terminal sẽ hiển thị Menu điều khiển tương tác:
-```text
-────────────────────────────────────────────────────────────
-  🎮  BẢNG ĐIỀU KHIỂN YANSHEE AI  (gõ lệnh + Enter)
-────────────────────────────────────────────────────────────
-  [1 / face   ]  ▶ ĐANG CHẠY   — Nhận diện Khuôn mặt
-  [2 / gesture]    chờ         — Nhận diện Cử chỉ tay
-  [quit / exit]               — Dừng toàn bộ hệ thống
-────────────────────────────────────────────────────────────
->>
-```
-
-#### 🎮 Điều khiển chuyển đổi chế độ trực tiếp (CLI on-the-fly):
-- **`1`** hoặc **`face`**: Bật chế độ Nhận diện khuôn mặt & Liveness.
-- **`2`** hoặc **`gesture`**: Chuyển sang chế độ Nhận diện cử chỉ tay (Camera cử chỉ sẽ mở ra).
-- **`quit`** hoặc **`exit`**: Dừng an toàn toàn bộ các luồng (Voice, Camera, ActionQueue, Dashboard).
+Sau khi khởi động, **mọi thao tác vận hành hàng ngày đều được thực hiện trực tiếp trên Web Dashboard** mà không cần quay lại terminal.
 
 ---
 
-### 4. Truy cập Giao diện Web Dashboard
+### 4. Truy cập Giao diện Web Dashboard (Trung Tâm Điều Khiển Chính)
 
 Mở trình duyệt web và truy cập địa chỉ:
 👉 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
-Giao diện Dashboard hiển thị:
-- **Khung video trực tiếp** kèm bounding box và thông tin người được nhận diện.
-- **Trạng thái kết nối**: Robot status, Camera status, Voice status.
-- **Biểu đồ tài nguyên phần cứng**: Tỷ lệ CPU, RAM, ổ đĩa, tiến trình Python.
-- **Bảng sự kiện thời gian thực** (WebSocket event feed).
+Giao diện Web Dashboard tích hợp đầy đủ mọi chức năng vận hành thực tế:
+1. **Chuyển chế độ hoạt động (Mode Control Bar)**:
+   - **`Face Recognition (1)`**: Nhận diện khuôn mặt, chống giả mạo sinh trắc học và hiển thị khung nhận diện.
+   - **`Gesture Control (2)`**: Giải phóng camera nhận diện, chuyển giao cho MediaPipe nhận diện cử chỉ tay (Like, Dislike, Vẫy tay, Ôm...).
+   - **`Gemini AI (3)`**: Chế độ trò chuyện và điều khiển robot tự nhiên qua mô hình ngôn ngữ lớn Gemini.
+   - **`Dừng Hệ Thống (Shutdown)`**: Dừng an toàn toàn bộ luồng, camera, micro, kết nối robot và máy chủ từ giao diện web.
+2. **Khung video trực tiếp (`/video_feed`)**:
+   - Stream MJPEG tốc độ cao lấy trực tiếp từ `CameraManager`.
+   - Lớp vẽ đồ họa (Canvas Overlay) thể hiện Bounding Box, tên người dùng, tỷ lệ nhận diện (`Confidence`) và trạng thái thử thách `Liveness`.
+3. **Bảng điều khiển Robot trực tiếp (Robot Direct Motion)**:
+   - Các nút cử động nhanh: Tiến (`Forward`), Lùi (`Backward`), Rẽ trái (`TurnLeft`), Rẽ phải (`TurnRight`), Chào (`RaiseRightHand`), Vẫy tay (`H_WaveRH`), Ôm (`Hug`), Sút bóng (`Football_RKick`), Đứng nghiêm (`Reset`).
+   - Lệnh được đưa trực tiếp vào `ActionQueue` có độ ưu tiên, xử lý an toàn không xung đột.
+4. **Giọng nói, TTS Tiếng Việt & Bộ nhớ thông minh (Smart Memory)**:
+   - Bật/Tắt thu âm micro (`Voice Controller`).
+   - Ô nhập văn bản tiếng Việt và nút phát âm thanh TTS qua loa máy tính hoặc robot.
+   - Form dạy từ khóa mới cho robot: chọn động tác và gõ từ mới để robot tự nạp vào [`data/robot_memory.json`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/data/robot_memory.json).
+5. **Giám sát tài nguyên & Nhật ký sự kiện thời gian thực**:
+   - Vòng tròn đo % CPU, RAM, Ổ đĩa, Camera FPS, độ trễ và thời gian hoạt động (`Uptime`).
+   - Luồng log sự kiện thời gian thực đẩy qua WebSocket (`/ws`).
+
+#### 🎮 Phương án kỹ thuật dự phòng (Terminal CLI):
+Nếu thao tác trên terminal, bạn vẫn có thể gõ `1`/`face`, `2`/`gesture`, `3`/`ai` hoặc `quit`. Cả CLI và Dashboard đều gọi chung qua tầng điều phối [`mode_coordinator.py`](file:///c:/Users/LENOVO/YANSHEE_CONTROL-main/mode_coordinator.py) đảm bảo đồng bộ 100%.
 
 ---
 
@@ -284,3 +289,24 @@ Khi tính năng giọng nói được bật (`VOICE_ENABLED = True`), hệ thố
    - Dùng lệnh `ping <IP_ROBOT>` trong terminal để kiểm tra thông mạng.
    - Kiểm tra cổng REST API của robot (mặc định là `9090`).
    - Chạy `python tools/check_robot.py` để xem thông báo lỗi chi tiết.
+
+## 🗂️ Chi tiết mã nguồn (Sync with README)
+
+- **Voice Control**  
+  - Mã: [`voice/voice_controller.py`](file:///C:/Users/LENOVO/YANSHEE_CONTROL-main/voice/voice_controller.py)  
+  - Thực hiện: lắng nghe, chuẩn hoá, gọi `RobotMemory.find_motion`.
+
+- **Smart Memory**  
+  - Dữ liệu: [`data/robot_memory.json`](file:///C:/Users/LENOVO/YANSHEE_CONTROL-main/data/robot_memory.json)  
+  - Mã: [`voice/robot_memory.py`](file:///C:/Users/LENOVO/YANSHEE_CONTROL-main/voice/robot_memory.py)  
+
+- **Cấu hình hệ thống**  
+  - Mã: [`config.py`](file:///C:/Users/LENOVO/YANSHEE_CONTROL-main/config.py) – liệt kê tất cả tham số cấu hình.
+
+- **Entry point**  
+  - Mã: [`main.py`](file:///C:/Users/LENOVO/YANSHEE_CONTROL-main/main.py) – khởi tạo EventBus, RobotMemory, VoiceController, Dashboard, v.v.
+
+- **Dashboard**  
+  - Mã: [`dashboard/app.py`](file:///C:/Users/LENOVO/YANSHEE_CONTROL-main/dashboard/app.py) – FastAPI server cho Web UI.
+
+Bạn có thể mở các file trên để xem chi tiết thực thi và cập nhật tài liệu khi có thay đổi.
